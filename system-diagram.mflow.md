@@ -1,6 +1,6 @@
 %%{init: {"flowchart": {"defaultRenderer": "elk"}} }%%
 flowchart TD
-    Explanation("Arrowheads are communication types\n Standard arrowhead = PWM\nCircle = bus type (USB, SPI, etc)\n X = wireless\n Line type denotes if power is sent\nStandard = both comms and power\nThick = comms only\nDotted = Power only")
+    Explanation(["Arrowheads are communication types\n Standard arrowhead = PWM\nCircle = bus (USB, SPI, etc)\n X = power only"])
     Transmitter
     Receiver
     Battery
@@ -12,17 +12,24 @@ flowchart TD
     SDCard["SD Card"]
     Gimbal
     PiCam
-    Transmitter ==x Receiver
+    Altimeter
+    FiveVolts(["5V rail"])
+    Transmitter --o |"Wireless (DSM2)"|Receiver
     ESC --> PropMotor
-    Battery -.-> |12V| ESC
-    ESC -.-> |5V| Receiver
+    Battery --x |12V| ESC
+    ESC --x |Supply from BEC| FiveVolts
     Receiver --> CSS
-    Receiver ==> ESC
-    ESC -.-> |5V| RasPi
+    Receiver --> |Throttle info| ESC
+    FiveVolts --x RasPi
+    FiveVolts --x CSS
+    FiveVolts --x Gimbal
+    FiveVolts --x Receiver
+    FiveVolts --x Altimeter
     PiCam o--o RasPi
-    Receiver ==> Pico
+    Receiver --> |via AUX1, for control from ground| Pico
     PiCam --- |physically attached to| Gimbal
-    Pico ==o|Commands from pilot; logging| RasPi
-    RasPi --o |Gimbal tracking commands|Pico
+    Pico --o|Commands from pilot; logging| RasPi
+    RasPi --o |"Gimbal tracking commands; power"|Pico
     Pico --> Gimbal
+    Altimeter --o Pico
     RasPi --o |Logs| SDCard
