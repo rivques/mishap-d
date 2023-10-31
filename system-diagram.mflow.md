@@ -1,6 +1,4 @@
-%%{init: {"flowchart": {"defaultRenderer": "elk"}} }%%
-flowchart TD
-    Explanation(["Arrowheads are communication types\n Standard arrowhead = PWM\nCircle = bus (USB, SPI, etc)\n X = power only"])
+flowchart TB
     Transmitter
     Receiver
     Battery
@@ -8,12 +6,25 @@ flowchart TD
     PropMotor["Prop Motor"]
     CSS["Control Surface Servos"]
     Pico["Low-Level Controller (Pico)"]
-    RasPi["Image Processor (RasPi)"]
     SDCard["SD Card"]
     Gimbal
     PiCam
     Altimeter
+    PayloadBayDoor["Payload Bay Doors"]
     FiveVolts(["5V rail"])
+    subgraph RasPi["Image Processor (RasPi)"]
+        ImageInput[["Image Input"]]
+        --> ScaleImage["Scale Image"]
+        --> HSVThreshold["HSV Threshold"]
+        --> BlobDetection["Blob Detection"]
+        --> FunWithTrig["Fun with Trigonometry"]
+        --> LocInfo[("LocInfo")]
+        --> PhysicsPrediction["Predict flight of payload"]
+    end
+    FunWithTrig --> |"Keep gimbal pointing at target"| Pico
+    LocInfo --o |"Logs"| SDCard
+    PhysicsPrediction --o |"If trajectory hits target, release payload"| Pico
+    Altimeter --o Pico
     Transmitter --o |"Wireless (DSM2)"|Receiver
     ESC --> PropMotor
     Battery --x |12V| ESC
@@ -25,11 +36,12 @@ flowchart TD
     FiveVolts --x Gimbal
     FiveVolts --x Receiver
     FiveVolts --x Altimeter
-    PiCam o--o RasPi
+    FiveVolts --x PayloadBayDoor
+    PiCam o--o ImageInput
     Receiver --> |via AUX1, for control from ground| Pico
     PiCam --- |physically attached to| Gimbal
-    Pico --o|Commands from pilot; logging| RasPi
-    RasPi --o |"Gimbal tracking commands; power"|Pico
     Pico --> Gimbal
-    Altimeter --o Pico
-    RasPi --o |Logs| SDCard
+    Pico --> PayloadBayDoor
+    %% invisible links to pull the flowchart to be a bit more meaningful
+    FunWithTrig ~~~ Pico
+    Explanation(["Arrowheads are communication types\n Standard arrowhead = PWM\nCircle = bus (USB, SPI, etc)\n X = power only"])
