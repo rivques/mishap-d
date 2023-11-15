@@ -20,8 +20,10 @@ flowchart TB
         --> FunWithTrig["Fun with Trigonometry"]
         --> LocInfo[("LocInfo")]
         --> PhysicsPrediction["Predict flight of payload"]
+        FunWithTrig --> |"Keep gimbal pointing at target"| GimbalAngle["Gimbal Angle"]
+        GimbalAngle --> |"angle to target"| FunWithTrig
     end
-    FunWithTrig --> |"Keep gimbal pointing at target"| Pico
+    GimbalAngle --> Pico
     LocInfo --o |"Logs"| SDCard
     PhysicsPrediction --o |"If trajectory hits target, release payload"| Pico
     Altimeter --o Pico
