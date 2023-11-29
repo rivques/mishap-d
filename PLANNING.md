@@ -53,6 +53,29 @@ Dropping objects from altitude is inherently dangerous. To mitigate the risk of 
 ## Schedule
 ```mermaid
 
-
+gantt
+    title MISHAP-D Timeline
+    %% This is a comment
+    dateFormat YYYY-MM-DD
+        section Planning 
+            Create Planning Document : 2023-11-29, 17d           
+            
+        section CAD
+            Have electronics bay CAD complete : 2024-1-31, 9d
+            
+            2024-2-16: Have HSV threshoding running: Have gimbal designed
+            2023-3-1: Have payload bay CAD complete: Have video pipeline running: Have target beacon designed
+            2024-3-8: Have physics sim running
+        section CODE
+            Have a programmed Pico and altimeter in the plane : 2024-1-1, 31d
+            Collect Data and store on Pico : 2024-1-14, 31d
+        section Construction
+            2024-2-22: Have gimbal mounted: Have electronics bay mounted
+            2024-3-8: Have payload bay built and mounted
+            Thru end of march: Misc. buffer time for school closures or schedule delays
+        section Testing and Polishing
+            Land Plane Safely : 2024-1-21, 31d
+            Have taken video from plane to use for tuning : 2024-1-31, 9d
+        section Documentation
           
 ```
