@@ -52,29 +52,49 @@ Dropping objects from altitude is inherently dangerous. To mitigate the risk of 
 ## Schedule
 ```mermaid
 
+---
+displayMode: compact
+---
 gantt
     title MISHAP-D Timeline
     %% This is a comment
     dateFormat YYYY-MM-DD
+    tickInterval 1week
+    weekday monday  
         section Planning 
-            Create Planning Document : 2023-11-29, 17d           
-            
+            Create Planning Document : 2023-11-29, 17d     
+            Planning Due : milestone, 2023-12-15, 1d      
         section CAD
-            Have electronics bay CAD complete : 2024-1-31, 9d
-            
-            2024-2-16: Have HSV threshoding running: Have gimbal designed
-            2023-3-1: Have payload bay CAD complete: Have video pipeline running: Have target beacon designed
-            2024-3-8: Have physics sim running
+            Initial CAD done : milestone, 2024-1-20, 1d
+            Electronics bay CAD : 2024-1-2, 14d         
+            Gimbal CAD : 2024-1-1, 10d
+            Payload bay CAD : 2024-1-11, 11d
+            Target beacon design : 2024-2-19, 14d
         section CODE
-            Have a programmed Pico and altimeter in the plane : 2024-1-1, 31d
-            Collect Data and store on Pico : 2024-1-14, 31d
+            PoC - Programmed Pico and altimeter in the plane : 2024-1-1, 31d
+            physics sim dev : 2024-2-16, 14d
+            HSV threshoding dev : 2024-2-2, 14d
+            video pipeline dev : 2024-1-31, 21d
         section Construction
-            2024-2-22: Have gimbal mounted: Have electronics bay mounted
-            2024-3-8: Have payload bay built and mounted
-            Thru end of march: Misc. buffer time for school closures or schedule delays
-        section Testing and Polishing
+            Build gimbal : 2024-2-8, 14d
+            Build electronics bay: 2024-2-15, 14d
+            Build payload bay : 2024-3-1, 12d
+            Misc. buffer time : 2024-3-1, 31d
+        section Testing and <br>Polishing
             Land Plane Safely : 2024-1-21, 31d
-            Have taken video from plane to use for tuning : 2024-1-31, 9d
+            Take Tuning Vid : 2024-1-31, 11d
+            Functional prototype: milestone, 2024-2-28, 1d
+            Project due: milestone, 2024-5-19, 1d
+            Ready for Flight: milestone, 2024-3-30, 1d
+            Tuning system : 2024-4-8, 40d
+            Add rudder control (spicy) : 2024-5-19, 18d
+            End of school : milestone, 2024-6-7, 1d
         section Documentation
+            Do the Documentation : 2023-11-30, 155d
+        section School Breaks
+            Winter Break : crit, 2023-12-16, 16d
+            Spring Break : crit, 2024-3-31, 9d
+            AP Testing : crit, 2024-5-6, 14d
+
           
 ```
