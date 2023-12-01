@@ -52,9 +52,6 @@ Dropping objects from altitude is inherently dangerous. To mitigate the risk of 
 ## Schedule
 ```mermaid
 
----
-displayMode: compact
----
 gantt
     title MISHAP-D Timeline
     %% This is a comment
