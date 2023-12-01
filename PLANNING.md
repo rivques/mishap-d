@@ -118,7 +118,8 @@ gantt
             Electronics bay CAD : 2024-1-2, 14d         
             Gimbal CAD : 2024-1-1, 10d
             Payload bay CAD : 2024-1-11, 11d
-            Target beacon design : 2024-2-19, 14d
+            Target beacon design : 2024-1-19, 14d
+            Landing gear design : 2024-1-14, 11d 
         section CODE
             PoC - Programmed Pico and altimeter in the plane : 2024-1-1, 31d
             physics sim dev : 2024-2-16, 14d
@@ -130,7 +131,7 @@ gantt
             Build payload bay : 2024-3-1, 12d
             Misc. buffer time : 2024-3-1, 31d
         section Testing and <br>Polishing
-            Land Plane Safely : 2024-1-21, 31d
+            Characterize Plane : 2024-1-21, 31d
             Take Tuning Vid : 2024-1-31, 11d
             Functional prototype: milestone, 2024-2-28, 1d
             Project due: milestone, 2024-5-19, 1d
