@@ -93,9 +93,9 @@ gantt
         section Documentation
             Do the Documentation : 2023-11-30, 155d
         section School Breaks
-            Winter Break : crit, 2023-12-16, 16d
-            Spring Break : crit, 2024-3-31, 9d
-            AP Testing : crit, 2024-5-6, 14d
+            Winter Break : 2023-12-16, 16d
+            Spring Break : 2024-3-31, 9d
+            AP Testing : 2024-5-6, 14d
 
           
 ```
