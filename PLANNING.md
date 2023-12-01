@@ -51,22 +51,19 @@ When charging the LiPo batteries that power the plane, we will be cautions to av
 Dropping objects from altitude is inherently dangerous. To mitigate the risk of injury, we will begin by dropping light objects over targets far away from people or obstacles. Once we develop confidence in our system, we will advance to dropping non-dangerous objects (like water balloons) on people. The targets will wear head protection and safety glasses as an extra safety measure.
 ## Schedule
 ```mermaid
-
-%% ---
-%% displayMode: compact
-%% ---
+---
+displayMode: compact
+---
 gantt
 
     title MISHAP-D Timeline
     %% This is a comment
-    dateFormat YYYY-MM-DD
-    tickInterval 1week
-    weekday monday  
+    dateFormat YYYY-MM-DD  
         section Planning 
             Create Planning Document : 2023-11-29, 17d     
-            %% Planning Due : milestone, 2023-12-15, 1d      
+            Planning Due : milestone, 2023-12-15, 1d      
         section CAD
-            %% Initial CAD done : milestone, 2024-1-20, 1d
+            Initial CAD done : milestone, 2024-1-20, 1d
             Electronics bay CAD : 2024-1-2, 14d         
             Gimbal CAD : 2024-1-1, 10d
             Payload bay CAD : 2024-1-11, 11d
@@ -84,18 +81,17 @@ gantt
         section Testing and <br>Polishing
             Land Plane Safely : 2024-1-21, 31d
             Take Tuning Vid : 2024-1-31, 11d
-            %% Functional prototype: milestone, 2024-2-28, 1d
-            %% Project due: milestone, 2024-5-19, 1d
-            %% Ready for Flight: milestone, 2024-3-30, 1d
+            Functional prototype: milestone, 2024-2-28, 1d
+            Project due: milestone, 2024-5-19, 1d
+            Ready for Flight: milestone, 2024-3-30, 1d
             Tuning system : 2024-4-8, 40d
             Add rudder control (spicy) : 2024-5-19, 18d
-            %% End of school : milestone, 2024-6-7, 1d
+            End of school : milestone, 2024-6-7, 1d
         section Documentation
             Do the Documentation : 2023-11-30, 155d
         section School Breaks
-            Winter Break : 2023-12-16, 16d
-            Spring Break : 2024-3-31, 9d
-            AP Testing : 2024-5-6, 14d
-
-          
+            Winter Break : crit, 2023-12-16, 16d
+            Spring Break : crit, 2024-3-31, 9d
+            AP Testing : crit, 2024-5-6, 14d
+    
 ```
