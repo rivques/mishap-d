@@ -13,7 +13,58 @@ To determine when to drop the payload, the plane will be constantly running a ph
 * The plane will meet all requirements to recieve an A in Engineering 4.
 * The plane will accurately drop payloads on target.
 ## A Big Flowchart
-![A big flowchart, code in system-diagram.mflow](/assets/system-diagram.png)
+
+```mermaid
+flowchart TB
+    Transmitter
+    Receiver
+    Battery
+    ESC["Electric Speed Controller"]
+    PropMotor["Prop Motor"]
+    CSS["Control Surface Servos"]
+    Pico["Low-Level Controller (Pico)"]
+    SDCard["SD Card"]
+    Gimbal
+    PiCam
+    Altimeter
+    PayloadBayDoor["Payload Bay Doors"]
+    FiveVolts(["5V rail"])
+    subgraph RasPi["Image Processor (RasPi)"]
+        ImageInput[["Image Input"]]
+        --> ScaleImage["Scale Image"]
+        --> HSVThreshold["HSV Threshold"]
+        --> BlobDetection["Blob Detection"]
+        --> FunWithTrig["Fun with Trigonometry"]
+        --> LocInfo[("LocInfo")]
+        --> PhysicsPrediction["Predict flight of payload"]
+        FunWithTrig --> |"Keep gimbal pointing at target"| GimbalAngle["Gimbal Angle"]
+        GimbalAngle --> |"angle to target"| FunWithTrig
+    end
+    GimbalAngle --> Pico
+    LocInfo --o |"Logs"| SDCard
+    PhysicsPrediction --o |"If trajectory hits target, release payload"| Pico
+    Altimeter --o Pico
+    Transmitter --o |"Wireless (DSM2)"|Receiver
+    ESC --> PropMotor
+    Battery --x |12V| ESC
+    ESC --x |Supply from BEC| FiveVolts
+    Receiver --> CSS
+    Receiver --> |Throttle info| ESC
+    FiveVolts --x RasPi
+    FiveVolts --x CSS
+    FiveVolts --x Gimbal
+    FiveVolts --x Receiver
+    FiveVolts --x Altimeter
+    FiveVolts --x PayloadBayDoor
+    PiCam o--o ImageInput
+    Receiver --> |via AUX1, for control from ground| Pico
+    PiCam --- |physically attached to| Gimbal
+    Pico --> Gimbal
+    Pico --> PayloadBayDoor
+    %% invisible links to pull the flowchart to be a bit more meaningful
+    FunWithTrig ~~~ Pico
+    Explanation(["Arrowheads are communication types\n Standard arrowhead = PWM\nCircle = bus (USB, SPI, etc)\n X = power only"])
+```
 <details>
 <summary><h3> Explanation</h3></summary>
 This is a diagram of how the system on the plane will work. Everything starts with the camera, which is mounted on a gimbal under the plane. It feeds video into a Raspberry Pi (not pico). That will run an image processing pipeline that isolates the target's beacons. Using these beacons, it will then determine the correction needed to adjust the gimbal to continue pointing at the target. Additionaly, this data will be used to calculate the plane's location relative to the target with a bit of trigonometry. The location will be logged, and a physics simulation will be run to see where the payload would land if it was dropped at that moment in time. If the payload would hit the target, and the payload drop is armed, the payload will be dropped. The command to drop the payload and the commands to keep the gimbal on target will be sent over USB to a Raspberry Pi Pico, which will serve as the low-level controller. The Pico will control the gimbal and payload bay servos, and it will also be connected to the altimeter that provides height data to the navigation system. Finally, the control surfaces and propellers of the plane will be directly controlled by an RC reciever. The only link between the plane flight system and the payload system is the arming signal, which is a simple PPM signal that runs from the reciever into the Pico. This ensures that errors in the payload system cannot result in loss of control of the plane.
