@@ -72,17 +72,15 @@ This is a diagram of how the system on the plane will work. Everything starts wi
 
 ## Proof of Concept
 To validate the plane, and to secure a grade, we will first just put a RaspberryPi Pico logging altitude data in the plane. This will ensure we have *something* to submit to the assignment if the more ambitious plans fall through, and it will show that we can add our own electronics to the plane and operate them.
-## What we already have
-plane (dumb)
+
 ## What problems we will need to solve
-The plane has to calculate its location relative to its target and decide on the perfect time to drop the payload.
-* Plane cant see
-* plane cant do math
-* plane doesnt understand what a target is
-* plane cant fly
-* plane cant see
-* plane cant store data
-* 
+* The plane has to calculate its location relative to its target and decide on the perfect time to drop the payload.
+* The plane doesn't have a camera
+* The plane lacks an intellegent controller
+* The plane cannot recognize its target
+* The plane cannot stay aloft
+* The plane lacks aerial experience
+* The plane lacks a quick release payload bay
 
 ## Parts we will need
 * Raspberry Pi Pico
@@ -92,7 +90,7 @@ The plane has to calculate its location relative to its target and decide on the
 * Model Airplane
 * Servo motors
 * 3S LiPo battery
-*   
+
 ## Safety
 ### Isolated systems
 To ensure that a failure of the payload system will not affect the flyability of the plane, the payload system will be almost entirely isolated from the plane flight system. The only links between the two systems are the 5V power rail and the arming signal that runs from the plane flight system to the payload system. (This may change if we have extra time, in which case we may give the payload system rudder control. If we do this, we will have an override switch so we can always take control of the plane if the guidance fails.) 
