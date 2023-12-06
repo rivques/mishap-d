@@ -23,26 +23,32 @@ flowchart TB
     PropMotor["Prop Motor"]
     CSS["Control Surface Servos"]
     Pico["Low-Level Controller (Pico)"]
-    SDCard["SD Card"]
     Gimbal
     PiCam
     Altimeter
     PayloadBayDoor["Payload Bay Doors"]
     FiveVolts(["5V rail"])
     subgraph RasPi["Image Processor (RasPi)"]
+        SDCard["SD Card"]
         ImageInput[["Image Input"]]
         --> ScaleImage["Scale Image"]
         --> HSVThreshold["HSV Threshold"]
         --> BlobDetection["Blob Detection"]
         --> FunWithTrig["Fun with Trigonometry"]
-        --> LocInfo[("LocInfo")]
-        --> PhysicsPrediction["Predict flight of payload"]
+        --> LocInfo[("Location Info")]
+        subgraph PhysicsPrediction["Predict flight of payload"]
+            Kinematics(["2D kinematics\n(in YZ plane)"])
+            IntersectWithGround(["Intersect trajectory with ground plane"])
+            LocInfo --> |"Current position and velocity relative to target"| Kinematics
+            --> |"Projected drop trajectory"| IntersectWithGround
+        end
+        IntersectWithGround --> |"Projected impact location"| PayloadDropLogic["Payload drop logic"]
         FunWithTrig --> |"Keep gimbal pointing at target"| GimbalAngle["Gimbal Angle"]
         GimbalAngle --> |"angle to target"| FunWithTrig
     end
     GimbalAngle --> Pico
     LocInfo --o |"Logs"| SDCard
-    PhysicsPrediction --o |"If trajectory hits target, release payload"| Pico
+    PayloadDropLogic --o |"If trajectory hits target, release payload"| Pico
     Altimeter --o Pico
     Transmitter --o |"Wireless (DSM2)"|Receiver
     ESC --> PropMotor
@@ -63,7 +69,7 @@ flowchart TB
     Pico --> PayloadBayDoor
     %% invisible links to pull the flowchart to be a bit more meaningful
     FunWithTrig ~~~ Pico
-    Explanation(["Arrowheads are communication types\n Standard arrowhead = PWM\nCircle = bus (USB, SPI, etc)\n X = power only"])
+    Explanation(["Arrowheads are communication types\n Standard arrowhead = PWM\nCircle = bus (USB, SPI, etc) \n X = power only"])
 ```
 <details>
 <summary><h3> Explanation</h3></summary>
