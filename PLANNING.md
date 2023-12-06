@@ -76,6 +76,9 @@ flowchart TB
 This is a diagram of how the system on the plane will work. Everything starts with the camera, which is mounted on a gimbal under the plane. It feeds video into a Raspberry Pi (not pico). That will run an image processing pipeline that isolates the target's beacons. Using these beacons, it will then determine the correction needed to adjust the gimbal to continue pointing at the target. Additionaly, this data will be used to calculate the plane's location relative to the target with a bit of trigonometry. The location will be logged, and a physics simulation will be run to see where the payload would land if it was dropped at that moment in time. If the payload would hit the target, and the payload drop is armed, the payload will be dropped. The command to drop the payload and the commands to keep the gimbal on target will be sent over USB to a Raspberry Pi Pico, which will serve as the low-level controller. The Pico will control the gimbal and payload bay servos, and it will also be connected to the altimeter that provides height data to the navigation system. Finally, the control surfaces and propellers of the plane will be directly controlled by an RC reciever. The only link between the plane flight system and the payload system is the arming signal, which is a simple PPM signal that runs from the reciever into the Pico. This ensures that errors in the payload system cannot result in loss of control of the plane.
 </details>
 
+## Sketches
+![Mishap-d plan](https://github.com/rivques/mishap-d/assets/38469076/005e73d6-73ba-46b2-a0af-303a91a7d82a)
+
 ## Proof of Concept
 To validate the plane, and to secure a grade, we will first just put a RaspberryPi Pico logging altitude data in the plane. This will ensure we have *something* to submit to the assignment if the more ambitious plans fall through, and it will show that we can add our own electronics to the plane and operate them.
 
