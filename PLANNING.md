@@ -4,7 +4,7 @@ We want to build a remote control airplane that, with a camera, can accurately f
 
 To simplify the problem, a human will control the plane and fly it on an approach over the target. The only thing the plane has control over is when it drops the payload. It is very important that the human flies the plane on a straight route over the target, because the plane will not be able to compensate for lateral error. (If we have extra time, we may attempt to change this with PID rudder control.)
 
-To determine relative position, the target will be denoted several bright LEDS of a specific color. The plane will use computer vision to find the target. A gimbaled camera on the bottom of the plane will track the target. By keeping the target in the center of the frame, the angle between the plane and the target can be determined by the angle of the gimbal.
+To determine relative position, a human will point a laser pointer at the plane. The angle of the laser pointer will then be transmitted to the plane, which will triangulate its position.
 
 To determine when to drop the payload, the plane will be constantly running a physics simulation of what would happen if it chose that moment to drop. Only if the projected path would intersect the target, and the operator is giving the plane permission to drop, will the payload be released.
 
@@ -15,65 +15,83 @@ To determine when to drop the payload, the plane will be constantly running a ph
 ## A Big Flowchart
 
 ```mermaid
+%%{init: {"flowchart": {"defaultRenderer": "elk"}} }%%
 flowchart TB
-    Transmitter
-    Receiver
-    Battery
-    ESC["Electric Speed Controller"]
-    PropMotor["Prop Motor"]
-    CSS["Control Surface Servos"]
-    Pico["Low-Level Controller (Pico)"]
-    Gimbal
-    PiCam
-    Altimeter
-    PayloadBayDoor["Payload Bay Doors"]
-    FiveVolts(["5V rail"])
-    subgraph RasPi["Image Processor (RasPi)"]
-        SDCard["SD Card"]
-        ImageInput[["Image Input"]]
-        --> ScaleImage["Scale Image"]
-        --> HSVThreshold["HSV Threshold"]
-        --> BlobDetection["Blob Detection"]
-        --> FunWithTrig["Fun with Trigonometry"]
-        --> LocInfo[("Location Info")]
-        subgraph PhysicsPrediction["Predict flight of payload"]
-            Kinematics(["2D kinematics\n(in YZ plane)"])
-            IntersectWithGround(["Intersect trajectory with ground plane"])
-            LocInfo --> |"Current position and velocity relative to target"| Kinematics
-            --> |"Projected drop trajectory"| IntersectWithGround
+    subgraph Pilot
+        Transmitter
         end
-        IntersectWithGround --> |"Projected impact location"| PayloadDropLogic["Payload drop logic"]
-        FunWithTrig --> |"Keep gimbal pointing at target"| GimbalAngle["Gimbal Angle"]
-        GimbalAngle --> |"angle to target"| FunWithTrig
+    subgraph Plane["Plane"]
+        subgraph FlightSystem["Flight System"]
+        Receiver
+        Battery
+        ESC["Electric Speed Controller"]
+        PropMotor["Prop Motor"]
+        CSS["Control Surface Servos"]
+        FiveVolts(["5V rail"])
+        end
+        subgraph PayloadSystem["Payload System"]
+        Altimeter["Altimeter (or maybe LIDAR)"]
+        PayloadBayDoor["Payload Bay Doors"]
+        PLoRa["LoRa module"]
+        subgraph Pico["Flight controller (Pico)"]
+            Telemetry
+            --> SDCard["Log file"]
+            
+            ArmingInfo["Arming info"]
+            
+            subgraph Localization
+                Altitude
+                LaserAngles["Laser Angles"]
+                --> FunWithTrig["Fun with Trig"]
+                Altitude --> FunWithTrig --> LocInfo
+                end
+            subgraph PhysicsPrediction["Physics sim"]
+                Kinematics(["2D kinematics\n(in YZ plane)"])
+                IntersectWithGround(["Intersect trajectory with ground plane"])
+                LocInfo --> |"Current position and velocity relative to target"| Kinematics
+                --> |"Projected drop trajectory"| IntersectWithGround
+                --> ProjectedImpactLocation["Projected Impact Location"]
+            end
+        ProjectedImpactLocation --> SDCard
+        ProjectedImpactLocation --> PayloadDropLogic["Payload drop logic"]
+        --> Telemetry
+        ArmingInfo --> PayloadDropLogic
+        end
+    PLoRa --> |"Raw data for analysis"| SDCard
+    Telemetry --> PLoRa
+    PLoRa --> |"Tracker ARM switch"| ArmingInfo
     end
-    GimbalAngle --> Pico
-    LocInfo --o |"Logs"| SDCard
-    PayloadDropLogic --o |"If trajectory hits target, release payload"| Pico
-    Altimeter --o Pico
-    Transmitter --o |"Wireless (DSM2)"|Receiver
+    end
+    subgraph GroundStation["Tracking Station"]
+      GSLoRa["LoRa module"]
+      LaserPointer["Laser pointer"] --> |physically attached to| Encoders["Rotary sensors"]
+      --> GSPico["Ground station Pico"]
+      UI["Screen and buttons"] <--> |"Plane configuration, live telemetry"| GSPico
+      TGButton["Tracker ARM button"] --> GSPico
+      end
+    PLoRa <--> |"Laser angles, telemetry"| GSLoRa
+    GSPico <--> GSLoRa
+    LocInfo --> Telemetry
+    Altimeter --> Altitude
+    Transmitter --> |"Flight controls, pilot's ARM switch"|Receiver
     ESC --> PropMotor
     Battery --x |12V| ESC
     ESC --x |Supply from BEC| FiveVolts
     Receiver --> CSS
     Receiver --> |Throttle info| ESC
-    FiveVolts --x RasPi
     FiveVolts --x CSS
-    FiveVolts --x Gimbal
     FiveVolts --x Receiver
     FiveVolts --x Altimeter
     FiveVolts --x PayloadBayDoor
-    PiCam o--o ImageInput
-    Receiver --> |via AUX1, for control from ground| Pico
-    PiCam --- |physically attached to| Gimbal
-    Pico --> Gimbal
-    Pico --> PayloadBayDoor
-    %% invisible links to pull the flowchart to be a bit more meaningful
-    FunWithTrig ~~~ Pico
-    Explanation(["Arrowheads are communication types\n Standard arrowhead = PWM\nCircle = bus (USB, SPI, etc) \n X = power only"])
+    FiveVolts --x PLoRa
+    PLoRa --> LaserAngles
+    Receiver --> |Pilot's ARM switch| ArmingInfo
+    PayloadDropLogic --> |If all are armed and payload intersects| PayloadBayDoor
+    %%Explanation(["Arrowheads are communication types\n Standard arrowhead = PWM\nCircle = bus (USB, SPI, etc) \n X = power only"])
 ```
 <details>
 <summary><h3> Explanation</h3></summary>
-This is a diagram of how the system on the plane will work. Everything starts with the camera, which is mounted on a gimbal under the plane. It feeds video into a Raspberry Pi (not pico). That will run an image processing pipeline that isolates the target's beacons. Using these beacons, it will then determine the correction needed to adjust the gimbal to continue pointing at the target. Additionaly, this data will be used to calculate the plane's location relative to the target with a bit of trigonometry. The location will be logged, and a physics simulation will be run to see where the payload would land if it was dropped at that moment in time. If the payload would hit the target, and the payload drop is armed, the payload will be dropped. The command to drop the payload and the commands to keep the gimbal on target will be sent over USB to a Raspberry Pi Pico, which will serve as the low-level controller. The Pico will control the gimbal and payload bay servos, and it will also be connected to the altimeter that provides height data to the navigation system. Finally, the control surfaces and propellers of the plane will be directly controlled by an RC reciever. The only link between the plane flight system and the payload system is the arming signal, which is a simple PPM signal that runs from the reciever into the Pico. This ensures that errors in the payload system cannot result in loss of control of the plane.
+This is a diagram of how the systems will work. There are three main systems: The pilot, the tracking station, and the plane. The pilot is simplest: They just have a transmitter talking to a standard R/C reciever on the plane. The tracker station consists of a laser pointer mounted on some sensors that can read the angle the laser pointer is at. The tracker points the laser at the plane. The tracking station sends this data to the plane, which it uses to triangulate its position. The tracker station is also capable of recieving live telemetry and adjusting settings, like target location. The plane has the most going on. The flight system flies the plane nearly identically to a standard R/C airplane. The payload system deals with everything else. By design, the flight and payload systems are fairly isolated, with only power and a single piece of information flowing from the flight system to the payload system, and nothing flowing the other way. This ensures that if (when) the payload system fails, the plane can still be flown safely to a landing. The payload system has some sensors and a Raspberry Pi Pico running two main subsystems: A localizer to determine its position relative to its target, and a physics simulation to determine the path of its payload when dropped. The flight system also logs and transmits telemetry information for troubleshooting.
 </details>
 
 ## Sketches
@@ -84,21 +102,22 @@ To validate the plane, and to secure a grade, we will first just put a Raspberry
 
 ## What problems we will need to solve
 * The plane has to calculate its location relative to its target and decide on the perfect time to drop the payload.
-* The plane doesn't have a camera
 * The plane lacks an intellegent controller
-* The plane cannot recognize its target
 * The plane cannot stay aloft
 * The plane lacks aerial experience
 * The plane lacks a quick release payload bay
 
 ## Parts we will need
-* Raspberry Pi Pico
-* Raspberry Pi B Model ?
+* Raspberry Pi Pico (x2)
 * DSM2 Reciever
 * DSM2 Transmitter
 * Model Airplane
 * Servo motors
 * 3S LiPo battery
+* Laser pointer
+* Screen
+* Buttons
+* LoRa tranceiver
 
 ## Safety
 ### Isolated systems
@@ -106,7 +125,9 @@ To ensure that a failure of the payload system will not affect the flyability of
 ### LiPo batteries
 When charging the LiPo batteries that power the plane, we will be cautions to avoid a battery fire. To accomplish this, we will always charge batteries either under direct supervision or in a LiPo safety pouch.
 ### Targeting
-Dropping objects from altitude is inherently dangerous. To mitigate the risk of injury, we will begin by dropping light objects over targets far away from people or obstacles. Once we develop confidence in our system, we will advance to dropping non-dangerous objects (like water balloons) on people. The targets will wear head protection and safety glasses as an extra safety measure.
+Dropping objects from altitude is inherently dangerous. The payload bay will only be able to open if the tracker and the pilot have both ARMed. To mitigate the risk of injury, we will begin by dropping light objects over targets far away from people or obstacles. Once we develop confidence in our system, we will advance to dropping non-dangerous objects (like water balloons) on people. The targets will wear head protection and safety glasses as an extra safety measure.
+### Lasers
+The laser pointer used for tracking may need to be quite powerful. The laser will only be activated when it could not point at humans, and when there is full-scale aviation in the area tracking will not be conducted.
 ## Schedule
 ```mermaid
 ---
@@ -122,24 +143,22 @@ gantt
             Planning Due : milestone, 2023-12-15, 1d      
         section CAD
             Initial CAD done : milestone, 2024-1-20, 1d
-            Electronics bay CAD : 2024-1-2, 14d         
-            Gimbal CAD : 2024-1-1, 10d
+            Electronics bay CAD : 2024-1-2, 21d         
+            Tracking station CAD : 2024-1-1, 10d
             Payload bay CAD : 2024-1-11, 11d
-            Target beacon design : 2024-1-19, 14d
-            Landing gear design : 2024-1-14, 11d 
         section CODE
             PoC - Programmed Pico and altimeter in the plane : 2024-1-1, 31d
             physics sim dev : 2024-2-16, 14d
-            HSV threshoding dev : 2024-2-2, 14d
-            video pipeline dev : 2024-1-31, 21d
+            tracking station dev : 2024-2-2, 14d
+            localizer dev: 2024-1-31, 21d
         section Construction
-            Build gimbal : 2024-2-8, 14d
+            Build tracking station : 2024-2-8, 14d
             Build electronics bay: 2024-2-15, 14d
             Build payload bay : 2024-3-1, 12d
             Misc. buffer time : 2024-3-1, 31d
         section Testing and <br>Polishing
             Characterize Plane : 2024-1-21, 31d
-            Take Tuning Vid : 2024-1-31, 11d
+            Take Tuning Flight : 2024-1-31, 11d
             Functional prototype: milestone, 2024-2-28, 1d
             Project due: milestone, 2024-5-19, 1d
             Ready for Flight: milestone, 2024-3-30, 1d
@@ -154,3 +173,6 @@ gantt
             AP Testing : crit, 2024-5-6, 14d
     
 ```
+## Revisions
+* 2023-12-13: First revision
+* 2023-12-25: Switch from using vision to using lasers for localization.
