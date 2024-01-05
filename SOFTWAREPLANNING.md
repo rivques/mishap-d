@@ -1,7 +1,7 @@
 # Logging
 Uses the [ArduinoLog](https://github.com/thijse/Arduino-Log) library for easy logging.
 
-I don't think this is thread safe, so the radio task loggs via a queue of these structs:
+I don't think this is thread safe, so the radio task logs via a queue of these structs:
 ```cpp
 struct ThreadedLogMsg {
   int level;
@@ -13,15 +13,16 @@ Uses Radiohead's RHReliableDatagrams and an RFM9x LoRa radio. This gives us 251-
 
 Each packet is a struct:
 ```cpp
-enum PacketType {
+enum PacketType : byte {
   LaserAngle,
-  TargetPosition,
-  ClearedCache
+  TargetSettings,
+  ClearedCache,
+  PayloadTelemetry
   // etc.
 }
 struct MishapProtocolPacket {
   PacketType packetType;
-  char data[247];
+  byte data[250];
 }
 ```
 `PacketType` indicates what struct is packed into the `data` buffer. Upon receiving a packet, the receiver can know what type is in `data` and thus what type to unpack it into with a `memcpy`. 
@@ -31,9 +32,41 @@ struct MishapProtocolPacket {
 GC->PC, indicates what angle the laser is pointing at
 ```cpp
 struct LaserAngleData {
-  double theta;
-  double phi;
-}
+  float theta;
+  float phi;
+} // 8 bytes
+```
+### TargetSettings
+GC->PC, tells the payload where the target is relative to the ground station
+```cpp
+struct TargetSettingsData {
+  float target_x;
+  float target_y;
+  float target_z;
+} // 12 bytes
+```
+### ClearedCache
+PC->GC, asks the GC for the target settings (for example, because the payload has just powered on)
+```cpp
+struct ClearedCacheData {} // 0 bytes
+```
+### PayloadTelemetry
+PC->GC, a bundle of all the telemetry data
+```cpp
+struct PayloadTelemetryData {
+  unsigned long time; // time in milliseconds since plane power-on
+  float altitude;
+  float payload_x_pos;
+  float payload_y_pos;
+  float payload_z_pos;
+  float payload_x_vel;
+  float payload_y_vel;
+  float payload_z_vel;
+  float payload_impact_x;
+  float payload_impact_y;
+  float payload_impact_z;
+  bool payload_dropped;
+} // 45 bytes
 ```
 ## MishapProtocol API
 `void doRadioLoop(QueueHandle_t sendQueue, QueueHandle_t receiveQueue, QueueHandle_t loggingQueue)`
@@ -53,4 +86,9 @@ The controller first configures its hardware, then kicks off the radio loop in `
 In `loop()`, it:
 1. Handles the receiving queues from the radio loop.
 2. Updates any needed internal state from received packets.
-3. 
+3. Updates its sensor readings.
+4. Calculates its current position from its internal state.
+5. Does a physics simulation of dropping the payload.
+6. Checks if the payload should be dropped (based on impact location, target location, track validity, arm state, etc.)
+7. Logs data to nonvolatile storage.
+8. Sends data out as a telemetry packet.
