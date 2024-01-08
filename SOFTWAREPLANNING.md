@@ -56,15 +56,9 @@ PC->GC, a bundle of all the telemetry data
 struct PayloadTelemetryData {
   unsigned long time; // time in milliseconds since plane power-on
   float altitude;
-  float payload_x_pos;
-  float payload_y_pos;
-  float payload_z_pos;
-  float payload_x_vel;
-  float payload_y_vel;
-  float payload_z_vel;
-  float payload_impact_x;
-  float payload_impact_y;
-  float payload_impact_z;
+  Vector3d payloadLoc;
+  Vector3d payloadVel;
+  Vector3d impactLoc;
   bool payload_dropped;
 } // 45 bytes
 ```
@@ -87,8 +81,11 @@ In `loop()`, it:
 1. Handles the receiving queues from the radio loop.
 2. Updates any needed internal state from received packets.
 3. Updates its sensor readings.
-4. Calculates its current position from its internal state.
-5. Does a physics simulation of dropping the payload.
-6. Checks if the payload should be dropped (based on impact location, target location, track validity, arm state, etc.)
-7. Logs data to nonvolatile storage.
-8. Sends data out as a telemetry packet.
+4. Calculates its current position from its internal state. `Vector3d getPayloadLocation(float altitude, float theta, float phi)`
+5. Calculates its current velocity from its internal state. `Vector3d getVelocity(Vector3d lastLocation, Vector3d currentLocation, unsigned long timeBetween)`
+6. Does a physics simulation of dropping the payload. `Vector3d getImpactLocation(Vector3d payloadLoc, Vector3d payloadVel, Vector3d targetLoc)`
+7. Checks if the payload should be dropped (based on impact location, target location, track validity, arm state, etc.) `bool shouldDrop(Vector3d impactLoc, Vector3d targetLoc, bool isTrackGood, bool isArmed)`
+8. Logs data to nonvolatile storage. `void logDataToSd(Vector3d payloadLoc, Vector3d payloadVel, Vector3d impactLoc, Vector3d targetLoc, bool isTrackGood, bool isArmed, bool didDrop, float altitude, float theta, float phi)` (and anything else we might want to log)
+9. Sends data out as a telemetry packet.
+# Coordinate system
+The origin's XY is at the tracking station, and the Z is the ground directly below the tracking station. The +X axis is directly forward from the tracking station. The +Y axis is directly to the right from the tracking station.
