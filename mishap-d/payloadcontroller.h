@@ -1,21 +1,23 @@
 #include <Arduino.h>
 #include "mishapprotocol.h"
+#include "config.h"
 
-void payloadsetup(){
-
-}
-
-void payloadloop(){
+void payloadsetup() {
 
 }
 
-Vector3d getImpactLocation(Vector3d payloadLoc, Vector3d payloadVel, Vector3d targetLoc){
+void payloadloop() {
+
+}
+
+Vector3d getImpactLocation(Vector3d payloadLoc, Vector3d payloadVel, Vector3d targetLoc) {
    float timeOfFlight = getTimeOfFlight(payloadLoc, payloadVel, targetLoc);
-   Vector3d windRes{0, 0, 0}; // acceleration caused by wind
+   Vector3d windRes = WIND_ACCELERATION; // acceleration caused by wind
    Vector3d distance = getDistance(payloadLoc, payloadVel, targetLoc, windRes, timeOfFlight);
+   return payloadLoc + distance;
 }
 
-float getTimeOfFlight(Vector3d payloadLoc, Vector3d payloadVel, Vector3d targetLoc){
+float getTimeOfFlight(Vector3d payloadLoc, Vector3d payloadVel, Vector3d targetLoc) {
     float a = -9.81;//accelaeeratiion
     float displacement = payloadLoc.z - targetLoc.z;
     float t1 = (-payloadVel.z + sqrt(payloadVel.z * payloadVel.z - 2 * a * displacement))/a;
@@ -32,10 +34,41 @@ float getTimeOfFlight(Vector3d payloadLoc, Vector3d payloadVel, Vector3d targetL
     }
 }
 
-Vector3d getDistance(Vector3d payloadLoc, Vector3d payloadVel, Vector3d targetLoc, Vector3d windRes, float timeOfFlight){
+Vector3d getDistance(Vector3d payloadLoc, Vector3d payloadVel, Vector3d targetLoc, Vector3d windRes, float timeOfFlight) {
     Vector3d distance;
     distance.x = payloadVel.x * timeOfFlight + 0.5 * windRes.x * timeOfFlight * timeOfFlight; //1D kinematics equations to figure out location on 1D plane
     distance.y = payloadVel.y * timeOfFlight + 0.5 * windRes.y * timeOfFlight * timeOfFlight;
-    distance.z = payloadLoc.z - targetLoc.z;
+    distance.z = targetLoc.z - payloadLoc.z;
     return distance;
+}
+
+float deg2rad(float degrees) {
+    float rad = (degrees * PI)/180;
+    return rad
+}
+Vector3d getPayloadLocation(float altitude, float theta, float phi) {
+    float radius = altitude/tan(deg2rad(phi));
+    Vector3d location;
+    location.x = radius * cos(deg2rad(theta));
+    location.y = radius * sin(deg2rad(theta));
+    location.z = altitude;
+    return location;
+}
+
+Vector3d getVelocity(Vector3d lastLocation, Vector3d currentLocation, unsigned long timeBetween) {
+    velocity = (currentLocation-lastLocation)/(timeBetween*1000);
+    return velocity;
+}
+
+bool shouldDrop(Vector3d impactLoc, Vector3d targetLoc, bool isTrackGood, bool isArmed) {
+    if (isArmed == true && isTrackGood == true && (impactLoc - targetLoc).magnitude() <= ACCEPTABLE_TARGET_ERROR) {
+        return true;
+    }
+    else {
+        return false;
+    }
+}
+
+void logDataToSd(Vector3d payloadLoc, Vector3d payloadVel, Vector3d impactLoc, Vector3d targetLoc, bool isTrackGood, bool isArmed, bool didDrop, float altitude, float theta, float phi) {
+    
 }
