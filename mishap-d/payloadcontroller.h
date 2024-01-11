@@ -11,7 +11,8 @@ void payloadloop(){
 
 Vector3d getImpactLocation(Vector3d payloadLoc, Vector3d payloadVel, Vector3d targetLoc){
    float timeOfFlight = getTimeOfFlight(payloadLoc, payloadVel, targetLoc);
-   Vector3d distance = getDistance(payloadLoc, payloadVel, targetLoc, timeOfFlight);
+   Vector3d windRes{0, 0, 0}; // acceleration caused by wind
+   Vector3d distance = getDistance(payloadLoc, payloadVel, targetLoc, windRes, timeOfFlight);
 }
 
 float getTimeOfFlight(Vector3d payloadLoc, Vector3d payloadVel, Vector3d targetLoc){
@@ -31,10 +32,10 @@ float getTimeOfFlight(Vector3d payloadLoc, Vector3d payloadVel, Vector3d targetL
     }
 }
 
-Vector3d getDistance(Vector3d payloadLoc, Vector3d payloadVel, Vector3d targetLoc, float timeOfFlight){
+Vector3d getDistance(Vector3d payloadLoc, Vector3d payloadVel, Vector3d targetLoc, Vector3d windRes, float timeOfFlight){
     Vector3d distance;
-    distance.x = payloadVel.x * timeOfFlight;
-    distance.y = payloadVel.y * timeOfFlight;
+    distance.x = payloadVel.x * timeOfFlight + 0.5 * windRes.x * timeOfFlight * timeOfFlight; //1D kinematics equations to figure out location on 1D plane
+    distance.y = payloadVel.y * timeOfFlight + 0.5 * windRes.y * timeOfFlight * timeOfFlight;
     distance.z = payloadLoc.z - targetLoc.z;
     return distance;
 }
