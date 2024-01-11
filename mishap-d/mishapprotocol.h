@@ -12,6 +12,26 @@ struct Vector3d {
   float x;
   float y;
   float z;
+
+  Vector3d operator+(Vector3d other){
+    return Vector3d{this->x + other.x, this->y + other.y, this->z + other.z};
+  }
+
+  Vector3d operator-(Vector3d other){
+    return Vector3d{this->x - other.x, this->y - other.y, this->z - other.z};
+  }
+
+  Vector3d operator*(float scalar){
+    return Vector3d{x*scalar, y*scalar, z*scalar};
+  }
+
+  Vector3d operator/(float scalar){
+    return operator*(1.0F/scalar);
+  }
+
+  float magnitude(){
+    return sqrt(x*x+y*y+z*z);
+  }
 }; // 12 bytes
 
 enum PacketType : byte {
@@ -34,7 +54,7 @@ struct LaserAngleData {
 }; // 8 bytes
 
 struct TargetSettingsData {
-  Vector3d targetPos;
+  Vector3d targetLoc;
 }; // 12 bytes
 
 struct ClearedCacheData {}; // 0 bytes

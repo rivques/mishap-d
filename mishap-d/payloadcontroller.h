@@ -10,12 +10,6 @@ void payloadloop() {
 
 }
 
-Vector3d getImpactLocation(Vector3d payloadLoc, Vector3d payloadVel, Vector3d targetLoc) {
-   float timeOfFlight = getTimeOfFlight(payloadLoc, payloadVel, targetLoc);
-   Vector3d windRes = WIND_ACCELERATION; // acceleration caused by wind
-   Vector3d distance = getDistance(payloadLoc, payloadVel, targetLoc, windRes, timeOfFlight);
-   return payloadLoc + distance;
-}
 
 float getTimeOfFlight(Vector3d payloadLoc, Vector3d payloadVel, Vector3d targetLoc) {
     float a = -9.81;//accelaeeratiion
@@ -42,9 +36,17 @@ Vector3d getDistance(Vector3d payloadLoc, Vector3d payloadVel, Vector3d targetLo
     return distance;
 }
 
+Vector3d getImpactLocation(Vector3d payloadLoc, Vector3d payloadVel, Vector3d targetLoc) {
+   float timeOfFlight = getTimeOfFlight(payloadLoc, payloadVel, targetLoc);
+   Vector3d windRes = WIND_ACCELERATION; // acceleration caused by wind
+   Vector3d distance = getDistance(payloadLoc, payloadVel, targetLoc, windRes, timeOfFlight);
+   return payloadLoc + distance;
+}
+
+
 float deg2rad(float degrees) {
     float rad = (degrees * PI)/180;
-    return rad
+    return rad;
 }
 Vector3d getPayloadLocation(float altitude, float theta, float phi) {
     float radius = altitude/tan(deg2rad(phi));
@@ -56,7 +58,7 @@ Vector3d getPayloadLocation(float altitude, float theta, float phi) {
 }
 
 Vector3d getVelocity(Vector3d lastLocation, Vector3d currentLocation, unsigned long timeBetween) {
-    velocity = (currentLocation-lastLocation)/(timeBetween*1000);
+    Vector3d velocity = (currentLocation-lastLocation)/(timeBetween*1000);
     return velocity;
 }
 
