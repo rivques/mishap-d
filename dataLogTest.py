@@ -3,6 +3,7 @@ import adafruit_bus_device
 import busio
 import board                                   
 import time
+import math
 from adafruit_lsm6ds.lsm6dsox import LSM6DSOX
 import adafruit_mpl3115a2
 
@@ -26,7 +27,7 @@ while True:
         print("accel done")
         gyro_x, gyro_y, gyro_z = lsm.gyro
         print("gyro done")
-        datalog.write(f"{float(st)},{float(ct)},{accel_x:.3f},{accel_y:.3f},{accel_z:.3f},{gyro_x:.3f},{gyro_y:.3f},{gyro_z:.3f}\n")
+        datalog.write(f"{float(ct)},{gyro_x*(3.1415/180):.3f},{gyro_y*(3.1415/180):.3f},{gyro_z*(3.1415/180):.3f},{accel_x:.3f},{accel_y:.3f},{accel_z:.3f}\n")
         datalog.flush()
         print(f"took data #{datacounter}")
         datacounter += 1

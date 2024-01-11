@@ -4,10 +4,10 @@
 #define TARGETING_PAYLOAD
 
 #if defined(TARGETING_GROUND) && defined(TARGETING_PAYLOAD)
-#error Both TARGETING_GROUND and TARGETING_PAYLOAD are defined. Pick one.
+#error Both TARGETING_GROUND and TARGETING_PAYLOAD are defined. Pick one please.
 #endif
 #if !defined(TARGETING_GROUND) && !defined(TARGETING_PAYLOAD)
-#error Neither TARGETING_GROUND nor TARGETING_PAYLOAD are defined. Pick one.
+#error Neither TARGETING_GROUND nor TARGETING_PAYLOAD are defined. Pick one please.
 #endif
 
 #ifdef TARGETING_GROUND
