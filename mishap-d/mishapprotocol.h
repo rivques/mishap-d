@@ -7,6 +7,7 @@ struct ThreadedLogMsg {
   int level;
   String msg;
 };
+
 struct Vector3d {
   float x;
   float y;
