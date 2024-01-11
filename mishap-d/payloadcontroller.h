@@ -72,5 +72,16 @@ bool shouldDrop(Vector3d impactLoc, Vector3d targetLoc, bool isTrackGood, bool i
 }
 
 void logDataToSd(Vector3d payloadLoc, Vector3d payloadVel, Vector3d impactLoc, Vector3d targetLoc, bool isTrackGood, bool isArmed, bool didDrop, float altitude, float theta, float phi) {
-    
+    myFile = SD.open("data.txt", FILE_WRITE);
+        // if the file opened okay, write to it:
+    if (myFile) {
+        myFile.println(payloadLoc, payloadVel, impactLoc, targetLoc, isTrackGood, isArmed, didDrop, altitude, theta, phi);
+        // close the file:
+        myFile.close();
+        Serial.println("done.");
+    } 
+    else {
+        // if the file didn't open, print an error:
+        Serial.println("error opening test.txt");
+    }
 }
