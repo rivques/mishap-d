@@ -32,6 +32,14 @@ struct Vector3d {
   float magnitude(){
     return sqrt(x*x+y*y+z*z);
   }
+
+  String toString(unsigned int decimalPlaces){
+    return String(x, decimalPlaces) + ", " + String(y, decimalPlaces) + ", " + String(z, decimalPlaces);
+  }
+
+  String toString(){
+    return toString(2);
+  }
 }; // 12 bytes
 
 enum PacketType : byte {

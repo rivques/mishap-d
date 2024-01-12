@@ -1,6 +1,8 @@
 #include <Arduino.h>
 #include "mishapprotocol.h"
 #include "config.h"
+#include <SPI.h>
+#include <SD.h>
 
 void payloadsetup() {
 
@@ -72,10 +74,19 @@ bool shouldDrop(Vector3d impactLoc, Vector3d targetLoc, bool isTrackGood, bool i
 }
 
 void logDataToSd(Vector3d payloadLoc, Vector3d payloadVel, Vector3d impactLoc, Vector3d targetLoc, bool isTrackGood, bool isArmed, bool didDrop, float altitude, float theta, float phi) {
-    myFile = SD.open("data.txt", FILE_WRITE);
+    SDFile myFile = SD.open("data.txt", FILE_WRITE);
         // if the file opened okay, write to it:
     if (myFile) {
-        myFile.println(payloadLoc, payloadVel, impactLoc, targetLoc, isTrackGood, isArmed, didDrop, altitude, theta, phi);
+        // TODO: refactor to be nicer
+        myFile.print(payloadLoc.toString()); myFile.print(",");
+        myFile.print(payloadVel.toString()); myFile.print(",");
+        myFile.print(targetLoc.toString()); myFile.print(",");
+        myFile.print(isTrackGood); myFile.print(",");
+        myFile.print(isArmed); myFile.print(",");
+        myFile.print(didDrop); myFile.print(",");
+        myFile.print(altitude); myFile.print(",");
+        myFile.print(theta); myFile.print(",");
+        myFile.println(phi);
         // close the file:
         myFile.close();
         Serial.println("done.");
