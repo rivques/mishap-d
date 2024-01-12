@@ -12,4 +12,9 @@
 #endif
 
 #ifdef TARGETING_GROUND
+#define OLED_MOSI 9
+#define OLED_CLK 10
+#define OLED_DC 11
+#define OLED_CS 12
+#define OLED_RESET 13
 #endif
