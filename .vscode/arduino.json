@@ -1,6 +1,7 @@
 {
-    "sketch": "mishap-d\\mishap-d.ino",
+    "sketch": "tests\\basic_radio_server\\basic_radio_server.ino",
     "configuration": "FlashFreq=80,UploadSpeed=921600,DebugLevel=none,EraseFlash=none",
     "board": "esp32:esp32:esp32doit-devkit-v1",
-    "output": "./build" 
+    "port": "COM46",
+    "output": "./build"
 }
