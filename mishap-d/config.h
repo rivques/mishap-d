@@ -3,10 +3,15 @@
 #define WIND_ACCELERATION Vector3d{0, 0, 0} // m/s^2
 #define ACCEPTABLE_TARGET_ERROR 1 // meters
 
-// constants
-#define PI 3.141592
-
 // specific defs, like pins and stuff
+#define CLIENT_ADDRESS 1
+#define SERVER_ADDRESS 2
+
+// radio pins and config
+#define RFM95_CS    4
+#define RFM95_INT   2
+#define RFM95_RST   16
+#define RF95_FREQ 915.0
 
 #ifdef TARGETING_PAYLOAD
 #endif
