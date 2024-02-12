@@ -45,7 +45,7 @@ struct Vector3d {
   }
 }; // 12 bytes
 
-enum PacketType : byte {
+enum PacketType : uint8_t {
   LaserAngle=0,
   TargetSettings=1,
   ClearedCache=2,

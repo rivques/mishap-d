@@ -1,7 +1,8 @@
 {
-    "sketch": "tests\\basic_radio_server\\basic_radio_server.ino",
+    "sketch": "mishap-d/mishap-d.ino",
     "configuration": "FlashFreq=80,UploadSpeed=921600,DebugLevel=none,EraseFlash=none",
     "board": "esp32:esp32:esp32doit-devkit-v1",
-    "port": "COM46",
-    "output": "./build"
+    "port": "/dev/tty.usbserial-0001",
+    "output": "./build",
+    "programmer": "esptool"
 }

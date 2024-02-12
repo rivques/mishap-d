@@ -11,8 +11,8 @@
 
 #include <RHReliableDatagram.h>
  
-#define CLIENT_ADDRESS 1
-#define SERVER_ADDRESS 2
+#define GROUND_LORA_ADDR 1
+#define PAYLOAD_LORA_ADDR 2
 
 // First 3 here are boards w/radio BUILT-IN. Boards using FeatherWing follow.
 #define RFM95_CS    4
@@ -53,7 +53,7 @@
 
 // Singleton instance of the radio driver
 RH_RF95 driver(RFM95_CS, RFM95_INT);
-RHReliableDatagram manager(driver, CLIENT_ADDRESS);
+RHReliableDatagram manager(driver, GROUND_LORA_ADDR);
 
 void setup() {
   pinMode(RFM95_RST, OUTPUT);
@@ -104,7 +104,7 @@ void loop()
   Serial.println("Sending to rf95_reliable_datagram_server");
     
   // Send a message to manager_server
-  if (manager.sendtoWait(data, sizeof(data), SERVER_ADDRESS))
+  if (manager.sendtoWait(data, sizeof(data), PAYLOAD_LORA_ADDR))
   {
     // Now wait for a reply from the server
     uint8_t len = sizeof(buf);

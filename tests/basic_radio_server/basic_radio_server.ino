@@ -10,8 +10,8 @@
 #include <RH_RF95.h>
 #include <SPI.h>
  
-#define CLIENT_ADDRESS 1
-#define SERVER_ADDRESS 2
+#define GROUND_LORA_ADDR 1
+#define PAYLOAD_LORA_ADDR 2
  
 
 // First 3 here are boards w/radio BUILT-IN. Boards using FeatherWing follow.
@@ -53,7 +53,7 @@
 
 // Singleton instance of the radio driver
 RH_RF95 driver(RFM95_CS, RFM95_INT);
-RHReliableDatagram manager(driver, SERVER_ADDRESS);
+RHReliableDatagram manager(driver, PAYLOAD_LORA_ADDR);
 
 void setup() {
   pinMode(LED_BUILTIN, OUTPUT);

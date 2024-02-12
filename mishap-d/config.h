@@ -4,8 +4,8 @@
 #define ACCEPTABLE_TARGET_ERROR 1 // meters
 
 // specific defs, like pins and stuff
-#define CLIENT_ADDRESS 1
-#define SERVER_ADDRESS 2
+#define GROUND_LORA_ADDR 1
+#define PAYLOAD_LORA_ADDR 2
 
 // radio pins and config
 #define RFM95_CS    4

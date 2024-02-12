@@ -2,14 +2,62 @@
 #include "mishapprotocol.h"
 #include "config.h"
 #include <SPI.h>
-#include <SD.h>
+//#include <SD.h>
+
+void handlePacket(MishapProtocolPacket packet){
+  Serial.print("Packet is of type ");
+  Serial.println(packet.packetType);
+  if(packet.packetType == PacketType::LaserAngle){
+    LaserAngleData newLad = decodeMPP<LaserAngleData>(packet);
+    Serial.print("Theta: ");
+    Serial.print(newLad.theta);
+    Serial.print(" Phi: ");
+    Serial.println(newLad.phi);
+  } else if(packet.packetType == PacketType::TargetSettings){
+    TargetSettingsData newTSD = decodeMPP<TargetSettingsData>(packet);
+    Serial.print("Target X: ");
+    Serial.print(newTSD.targetLoc.x);
+    Serial.print(" Target Y: ");
+    Serial.print(newTSD.targetLoc.y);
+    Serial.print(" Target Z: ");
+    Serial.println(newTSD.targetLoc.z);
+  } else if(packet.packetType == PacketType::ClearedCache){
+    Serial.println("cleared cache data");
+  } else {
+    Serial.print("Received unrecognized packet with id ");
+    Serial.println(packet.packetType);
+  }
+  Serial.println();
+}
+
+#include <RHReliableDatagram.h>
+#include <RH_RF95.h>
+RH_RF95 driver(RFM95_CS, RFM95_INT);
+RHReliableDatagram manager(driver, PAYLOAD_LORA_ADDR);
 
 void payloadsetup() {
-
+    Serial.begin(115200);
+    initRadio(driver, manager);
+    Serial.println("Payload setup");
 }
 
 void payloadloop() {
+    if(manager.available()){
+        Serial.println("manager available");
+      // Wait for a message addressed to us from the client
+      uint8_t len = sizeof(recv_buf);
+      uint8_t from;
+      if (manager.recvfromAck(recv_buf, &len, &from)){
+        Serial.print("Received packet from ");
+        Serial.print(from);
+        Serial.print(" with length ");
+        Serial.println(len);
 
+        handlePacket(rawBufToMPP(recv_buf, len));
+        
+        // xQueueSendToBack(receiveQueue, (void*) 
+      }
+    }
 }
 
 
@@ -73,26 +121,26 @@ bool shouldDrop(Vector3d impactLoc, Vector3d targetLoc, bool isTrackGood, bool i
     }
 }
 
-void logDataToSd(Vector3d payloadLoc, Vector3d payloadVel, Vector3d impactLoc, Vector3d targetLoc, bool isTrackGood, bool isArmed, bool didDrop, float altitude, float theta, float phi) {
-    SDFile myFile = SD.open("data.txt", FILE_WRITE);
-        // if the file opened okay, write to it:
-    if (myFile) {
-        // TODO: refactor to be nicer
-        myFile.print(payloadLoc.toString()); myFile.print(",");
-        myFile.print(payloadVel.toString()); myFile.print(",");
-        myFile.print(targetLoc.toString()); myFile.print(",");
-        myFile.print(isTrackGood); myFile.print(",");
-        myFile.print(isArmed); myFile.print(",");
-        myFile.print(didDrop); myFile.print(",");
-        myFile.print(altitude); myFile.print(",");
-        myFile.print(theta); myFile.print(",");
-        myFile.println(phi);
-        // close the file:
-        myFile.close();
-        Serial.println("done.");
-    } 
-    else {
-        // if the file didn't open, print an error:
-        Serial.println("error opening test.txt");
-    }
-}
+// void logDataToSd(Vector3d payloadLoc, Vector3d payloadVel, Vector3d impactLoc, Vector3d targetLoc, bool isTrackGood, bool isArmed, bool didDrop, float altitude, float theta, float phi) {
+//     SDFile myFile = SD.open("data.txt", FILE_WRITE);
+//         // if the file opened okay, write to it:
+//     if (myFile) {
+//         // TODO: refactor to be nicer
+//         myFile.print(payloadLoc.toString()); myFile.print(",");
+//         myFile.print(payloadVel.toString()); myFile.print(",");
+//         myFile.print(targetLoc.toString()); myFile.print(",");
+//         myFile.print(isTrackGood); myFile.print(",");
+//         myFile.print(isArmed); myFile.print(",");
+//         myFile.print(didDrop); myFile.print(",");
+//         myFile.print(altitude); myFile.print(",");
+//         myFile.print(theta); myFile.print(",");
+//         myFile.println(phi);
+//         // close the file:
+//         myFile.close();
+//         Serial.println("done.");
+//     } 
+//     else {
+//         // if the file didn't open, print an error:
+//         Serial.println("error opening test.txt");
+//     }
+// }
