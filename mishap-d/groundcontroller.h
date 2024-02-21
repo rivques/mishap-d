@@ -77,6 +77,9 @@ void groundloop(){
     Serial.print(" ");
   }
   Serial.println();
-  manager.sendtoWait(send_buf, sizeof(send_buf), PAYLOAD_LORA_ADDR);
+  unsigned long start = millis();
+  manager.sendto(send_buf, sizeof(send_buf), PAYLOAD_LORA_ADDR);
+  Serial.print("Sent packet in ");
+  Serial.println(millis()-start);
   delay(1000);
 }

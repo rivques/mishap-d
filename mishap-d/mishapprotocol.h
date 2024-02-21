@@ -120,16 +120,27 @@ void initRadio(RH_RF95 driver, RHReliableDatagram manager){
 
 uint8_t recv_buf[RH_RF95_MAX_MESSAGE_LEN];
 
-void doRadioLoop(RHReliableDatagram manager, QueueHandle_t sendQueue, QueueHandle_t receiveQueue, QueueHandle_t loggingQueue){
+struct RadioLoopParams {
+  RHReliableDatagram manager;
+  QueueHandle_t sendQueue;
+  QueueHandle_t receiveQueue;
+};
+
+void doRadioLoop(void* params){
+  RadioLoopParams* p = reinterpret_cast<RadioLoopParams*>(params);
+  RHReliableDatagram manager = p->manager;
+  QueueHandle_t sendQueue = p->sendQueue;
+  QueueHandle_t receiveQueue = p->receiveQueue;
   while(1){
     if(manager.available()){
+      //Serial.println("Received a message in the radio loop");
       // Wait for a message addressed to us from the client
       uint8_t len = sizeof(recv_buf);
       uint8_t from;
       if (manager.recvfromAck(recv_buf, &len, &from)){
-        MishapProtocolPacket packet;
-        
-        // xQueueSendToBack(receiveQueue, (void*) 
+        // Serial.print("Got packet from ");
+        // Serial.println(from);
+        xQueueSend(receiveQueue, (void*) &recv_buf, 0);
       }
     }
   }

@@ -34,29 +34,51 @@ void handlePacket(MishapProtocolPacket packet){
 #include <RH_RF95.h>
 RH_RF95 driver(RFM95_CS, RFM95_INT);
 RHReliableDatagram manager(driver, PAYLOAD_LORA_ADDR);
+QueueHandle_t receiveQueue;
+QueueHandle_t sendQueue;
+uint8_t send_buf[RH_RF95_MAX_MESSAGE_LEN];
+TaskHandle_t radioTask;
+RadioLoopParams radioParams = {manager, receiveQueue, sendQueue};
 
 void payloadsetup() {
     Serial.begin(115200);
     initRadio(driver, manager);
     Serial.println("Payload setup");
+
+    // receiveQueue = xQueueCreate(4, sizeof(recv_buf));
+    // sendQueue = xQueueCreate(4, sizeof(send_buf));
+
+    // xTaskCreatePinnedToCore(
+    //   doRadioLoop, /* Function to implement the task */
+    //   "RadioTask", /* Name of the task */
+    //   10000,  /* Stack size in words */
+    //   reinterpret_cast<void*>(&radioParams),  /* Task input parameter */
+    //   0,  /* Priority of the task */
+    //   &radioTask,  /* Task handle. */
+    //   0); /* Core where the task should run */
+    //   Serial.println("Created radio task");
 }
 
 void payloadloop() {
+    // watch the queue for incoming messages
+    // if(xQueueReceive(receiveQueue, &maintask_recv_buf, 0) == pdPASS){
+    //     Serial.println("Received a message via queue");
+    //     handlePacket(rawBufToMPP(maintask_recv_buf, sizeof(maintask_recv_buf)));
+    // }
     if(manager.available()){
-        Serial.println("manager available");
+        unsigned long start = millis();
+      //Serial.println("Received a message in the radio loop");
       // Wait for a message addressed to us from the client
       uint8_t len = sizeof(recv_buf);
       uint8_t from;
-      if (manager.recvfromAck(recv_buf, &len, &from)){
-        Serial.print("Received packet from ");
-        Serial.print(from);
-        Serial.print(" with length ");
-        Serial.println(len);
-
+      if (manager.recvfrom(recv_buf, &len, &from)){
+        // Serial.print("Got packet from ");
+        // Serial.println(from);
         handlePacket(rawBufToMPP(recv_buf, len));
-        
-        // xQueueSendToBack(receiveQueue, (void*) 
       }
+        unsigned long end = millis();
+        Serial.print("Time to receive and handle packet: ");
+        Serial.println(end - start);
     }
 }
 
