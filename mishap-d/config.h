@@ -13,6 +13,9 @@
 #define RFM95_RST   16
 #define RF95_FREQ 915.0
 
+// SD card pins
+#define SD_CS 15
+
 #ifdef TARGETING_PAYLOAD
 #endif
 

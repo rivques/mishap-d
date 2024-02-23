@@ -2,7 +2,9 @@
 #include "mishapprotocol.h"
 #include "config.h"
 #include <SPI.h>
-//#include <SD.h>
+#include <SD.h>
+
+File logFile;
 
 void handlePacket(MishapProtocolPacket packet){
   Serial.print("Packet is of type ");
@@ -13,6 +15,13 @@ void handlePacket(MishapProtocolPacket packet){
     Serial.print(newLad.theta);
     Serial.print(" Phi: ");
     Serial.println(newLad.phi);
+    logFile.print(millis());
+    logFile.print(",");
+    logFile.print(newLad.theta);
+    logFile.print(",");
+    logFile.println(newLad.phi);
+    logFile.flush();
+
   } else if(packet.packetType == PacketType::TargetSettings){
     TargetSettingsData newTSD = decodeMPP<TargetSettingsData>(packet);
     Serial.print("Target X: ");
@@ -44,6 +53,32 @@ void payloadsetup() {
     Serial.begin(115200);
     initRadio(driver, manager);
     Serial.println("Payload setup");
+
+    pinMode(SD_CS, OUTPUT);
+    if (!SD.begin(SD_CS)) {
+        Serial.println("initialization failed!");
+        return;
+    }
+    // figure out which mission number we are on
+    // filename format is mission_XXX.log
+    int missionNumber = 0;
+    File root = SD.open("/");
+    File entry = root.openNextFile();
+    while (entry) {
+        String filename = entry.name();
+        if (filename.startsWith("mission_")) {
+            int number = filename.substring(8, 11).toInt();
+            if (number > missionNumber) {
+                missionNumber = number;
+            }
+        }
+        entry = root.openNextFile();
+    }
+    missionNumber++; // increment to the next mission number
+    String filename = "mission_" + String(missionNumber) + ".log";
+    logFile = SD.open(filename, FILE_WRITE);
+    Serial.print("Opened log file ");
+    Serial.println(filename);
 
     // receiveQueue = xQueueCreate(4, sizeof(recv_buf));
     // sendQueue = xQueueCreate(4, sizeof(send_buf));
