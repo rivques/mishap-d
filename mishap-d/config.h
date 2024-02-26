@@ -15,6 +15,9 @@
 
 // SD card pins
 #define SD_CS 15
+#define HSPI_MISO   12
+#define HSPI_MOSI   13
+#define HSPI_CLK   14
 
 #ifdef TARGETING_PAYLOAD
 #endif

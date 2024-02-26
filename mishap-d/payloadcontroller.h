@@ -5,6 +5,7 @@
 #include <SD.h>
 
 File logFile;
+String filename;
 
 void handlePacket(MishapProtocolPacket packet){
   Serial.print("Packet is of type ");
@@ -15,13 +16,14 @@ void handlePacket(MishapProtocolPacket packet){
     Serial.print(newLad.theta);
     Serial.print(" Phi: ");
     Serial.println(newLad.phi);
+    logFile = SD.open(filename, FILE_WRITE);
+    logFile.seek(logFile.size());
     logFile.print(millis());
     logFile.print(",");
     logFile.print(newLad.theta);
     logFile.print(",");
     logFile.println(newLad.phi);
-    logFile.flush();
-
+    logFile.close();
   } else if(packet.packetType == PacketType::TargetSettings){
     TargetSettingsData newTSD = decodeMPP<TargetSettingsData>(packet);
     Serial.print("Target X: ");
@@ -48,17 +50,22 @@ QueueHandle_t sendQueue;
 uint8_t send_buf[RH_RF95_MAX_MESSAGE_LEN];
 TaskHandle_t radioTask;
 RadioLoopParams radioParams = {manager, receiveQueue, sendQueue};
+SPIClass* hspi;
 
 void payloadsetup() {
     Serial.begin(115200);
     initRadio(driver, manager);
     Serial.println("Payload setup");
 
+    // use HSPI for SD card
+    hspi = new SPIClass(HSPI);
+    hspi->begin(HSPI_CLK, HSPI_MISO, HSPI_MOSI, SD_CS);
     pinMode(SD_CS, OUTPUT);
-    if (!SD.begin(SD_CS)) {
-        Serial.println("initialization failed!");
-        return;
+    if (!SD.begin(SD_CS, *hspi)) {
+        Serial.println("SD initialization failed!");
+        while(1);
     }
+
     // figure out which mission number we are on
     // filename format is mission_XXX.log
     int missionNumber = 0;
@@ -74,11 +81,25 @@ void payloadsetup() {
         }
         entry = root.openNextFile();
     }
+    root.close();
     missionNumber++; // increment to the next mission number
-    String filename = "mission_" + String(missionNumber) + ".log";
-    logFile = SD.open(filename, FILE_WRITE);
+    String missionNoString = String(missionNumber);
+    // pad with zeros
+    while (missionNoString.length() < 3) {
+        missionNoString = "0" + missionNoString;
+    }
+    filename = "/mission_" + missionNoString + ".log";
+    Serial.print("Mission number is ");
+    Serial.println(missionNoString);
+    logFile = SD.open(filename, FILE_WRITE, true);
+    if(!logFile){
+        Serial.println("Failed to open log file");
+        while(1);
+    }
     Serial.print("Opened log file ");
     Serial.println(filename);
+    logFile.println("Time,Theta,Phi");
+    logFile.close();
 
     // receiveQueue = xQueueCreate(4, sizeof(recv_buf));
     // sendQueue = xQueueCreate(4, sizeof(send_buf));
