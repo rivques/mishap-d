@@ -64,7 +64,9 @@ struct MishapProtocolPacket {
 struct LaserAngleData {
   float theta;
   float phi;
-}; // 8 bytes
+  bool isTrackGood;
+  bool isArmed;
+}; // 10 bytes
 
 struct TargetSettingsData {
   Vector3d targetLoc;
@@ -74,7 +76,6 @@ struct ClearedCacheData {}; // 0 bytes
 
 struct PayloadTelemetryData {
   unsigned long time; // time in milliseconds since payload power-on
-  float altitude;
   Vector3d payloadPos;
   Vector3d payloadVel;
   Vector3d payloadImpactPos;

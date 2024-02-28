@@ -3,27 +3,54 @@
 #include "config.h"
 #include <SPI.h>
 #include <SD.h>
+#include <RHReliableDatagram.h>
+#include <RH_RF95.h>
 
+//  logging globals
 File logFile;
 String filename;
+SPIClass* hspi;
 
-void handlePacket(MishapProtocolPacket packet){
+// radio globals
+RH_RF95 driver(RFM95_CS, RFM95_INT);
+RHReliableDatagram manager(driver, PAYLOAD_LORA_ADDR);
+uint8_t send_buf[RH_RF95_MAX_MESSAGE_LEN];
+
+// state globals
+Vector3d currentLocation;
+Vector3d targetLocation;
+Vector3d currentVelocity;
+Vector3d impactLoc;
+float theta;
+float phi;
+float altitude;
+bool isTrackGood;
+bool isArmed;
+bool didDrop;
+unsigned long lastPacketReceivedTime;
+unsigned long lastLocationUpdateTime;
+
+
+bool handlePacket(MishapProtocolPacket packet){
+    // returns true if we need to update position
   Serial.print("Packet is of type ");
   Serial.println(packet.packetType);
+  lastPacketReceivedTime = millis();
   if(packet.packetType == PacketType::LaserAngle){
     LaserAngleData newLad = decodeMPP<LaserAngleData>(packet);
     Serial.print("Theta: ");
     Serial.print(newLad.theta);
     Serial.print(" Phi: ");
-    Serial.println(newLad.phi);
-    logFile = SD.open(filename, FILE_WRITE);
-    logFile.seek(logFile.size());
-    logFile.print(millis());
-    logFile.print(",");
-    logFile.print(newLad.theta);
-    logFile.print(",");
-    logFile.println(newLad.phi);
-    logFile.close();
+    Serial.print(newLad.phi);
+    Serial.print(" isTrackGood: ");
+    Serial.print(newLad.isTrackGood);
+    Serial.print(" isArmed: ");
+    Serial.println(newLad.isArmed);
+    theta = newLad.theta;
+    phi = newLad.phi;
+    isTrackGood = newLad.isTrackGood;
+    isArmed = newLad.isArmed;
+    return true;
   } else if(packet.packetType == PacketType::TargetSettings){
     TargetSettingsData newTSD = decodeMPP<TargetSettingsData>(packet);
     Serial.print("Target X: ");
@@ -32,50 +59,43 @@ void handlePacket(MishapProtocolPacket packet){
     Serial.print(newTSD.targetLoc.y);
     Serial.print(" Target Z: ");
     Serial.println(newTSD.targetLoc.z);
+    targetLocation = newTSD.targetLoc;
   } else if(packet.packetType == PacketType::ClearedCache){
     Serial.println("cleared cache data");
+    Serial.println("Should not have just received cleared cache data");
   } else {
     Serial.print("Received unrecognized packet with id ");
     Serial.println(packet.packetType);
   }
-  Serial.println();
+  return false;
 }
 
-#include <RHReliableDatagram.h>
-#include <RH_RF95.h>
-RH_RF95 driver(RFM95_CS, RFM95_INT);
-RHReliableDatagram manager(driver, PAYLOAD_LORA_ADDR);
-QueueHandle_t receiveQueue;
-QueueHandle_t sendQueue;
-uint8_t send_buf[RH_RF95_MAX_MESSAGE_LEN];
-TaskHandle_t radioTask;
-RadioLoopParams radioParams = {manager, receiveQueue, sendQueue};
-SPIClass* hspi;
 
-void payloadsetup() {
-    Serial.begin(115200);
-    initRadio(driver, manager);
-    Serial.println("Payload setup");
-
+void initSdLogging()
+{
     // use HSPI for SD card
     hspi = new SPIClass(HSPI);
     hspi->begin(HSPI_CLK, HSPI_MISO, HSPI_MOSI, SD_CS);
     pinMode(SD_CS, OUTPUT);
-    if (!SD.begin(SD_CS, *hspi)) {
+    if (!SD.begin(SD_CS, *hspi))
+    {
         Serial.println("SD initialization failed!");
-        while(1);
+        while (1);
     }
 
     // figure out which mission number we are on
-    // filename format is mission_XXX.log
+    // filename format is mission_XXX.csv
     int missionNumber = 0;
     File root = SD.open("/");
     File entry = root.openNextFile();
-    while (entry) {
+    while (entry)
+    {
         String filename = entry.name();
-        if (filename.startsWith("mission_")) {
+        if (filename.startsWith("mission_"))
+        {
             int number = filename.substring(8, 11).toInt();
-            if (number > missionNumber) {
+            if (number > missionNumber)
+            {
                 missionNumber = number;
             }
         }
@@ -85,59 +105,24 @@ void payloadsetup() {
     missionNumber++; // increment to the next mission number
     String missionNoString = String(missionNumber);
     // pad with zeros
-    while (missionNoString.length() < 3) {
+    while (missionNoString.length() < 3)
+    {
         missionNoString = "0" + missionNoString;
     }
-    filename = "/mission_" + missionNoString + ".log";
+    filename = "/mission_" + missionNoString + ".csv";
     Serial.print("Mission number is ");
     Serial.println(missionNoString);
     logFile = SD.open(filename, FILE_WRITE, true);
-    if(!logFile){
+    if (!logFile)
+    {
         Serial.println("Failed to open log file");
-        while(1);
+        while (1);
     }
     Serial.print("Opened log file ");
     Serial.println(filename);
-    logFile.println("Time,Theta,Phi");
+    logFile.println("Time,Payload Location X,Payload Location Y,Payload Location Z,Payload Velocity X,Payload Velocity Y,Payload Velocity Z,Target Location X,Target Location Y,Target Location Z,Impact Location X,Impact Location Y,Impact Location Z,Is Track Good,Is Armed,Did Drop,Theta,Phi,Last Packet Received Time,Time Since Last Location Update");
     logFile.close();
-
-    // receiveQueue = xQueueCreate(4, sizeof(recv_buf));
-    // sendQueue = xQueueCreate(4, sizeof(send_buf));
-
-    // xTaskCreatePinnedToCore(
-    //   doRadioLoop, /* Function to implement the task */
-    //   "RadioTask", /* Name of the task */
-    //   10000,  /* Stack size in words */
-    //   reinterpret_cast<void*>(&radioParams),  /* Task input parameter */
-    //   0,  /* Priority of the task */
-    //   &radioTask,  /* Task handle. */
-    //   0); /* Core where the task should run */
-    //   Serial.println("Created radio task");
 }
-
-void payloadloop() {
-    // watch the queue for incoming messages
-    // if(xQueueReceive(receiveQueue, &maintask_recv_buf, 0) == pdPASS){
-    //     Serial.println("Received a message via queue");
-    //     handlePacket(rawBufToMPP(maintask_recv_buf, sizeof(maintask_recv_buf)));
-    // }
-    if(manager.available()){
-        unsigned long start = millis();
-      //Serial.println("Received a message in the radio loop");
-      // Wait for a message addressed to us from the client
-      uint8_t len = sizeof(recv_buf);
-      uint8_t from;
-      if (manager.recvfrom(recv_buf, &len, &from)){
-        // Serial.print("Got packet from ");
-        // Serial.println(from);
-        handlePacket(rawBufToMPP(recv_buf, len));
-      }
-        unsigned long end = millis();
-        Serial.print("Time to receive and handle packet: ");
-        Serial.println(end - start);
-    }
-}
-
 
 float getTimeOfFlight(Vector3d payloadLoc, Vector3d payloadVel, Vector3d targetLoc) {
     float a = -9.81;//accelaeeratiion
@@ -199,26 +184,112 @@ bool shouldDrop(Vector3d impactLoc, Vector3d targetLoc, bool isTrackGood, bool i
     }
 }
 
-// void logDataToSd(Vector3d payloadLoc, Vector3d payloadVel, Vector3d impactLoc, Vector3d targetLoc, bool isTrackGood, bool isArmed, bool didDrop, float altitude, float theta, float phi) {
-//     SDFile myFile = SD.open("data.txt", FILE_WRITE);
-//         // if the file opened okay, write to it:
-//     if (myFile) {
-//         // TODO: refactor to be nicer
-//         myFile.print(payloadLoc.toString()); myFile.print(",");
-//         myFile.print(payloadVel.toString()); myFile.print(",");
-//         myFile.print(targetLoc.toString()); myFile.print(",");
-//         myFile.print(isTrackGood); myFile.print(",");
-//         myFile.print(isArmed); myFile.print(",");
-//         myFile.print(didDrop); myFile.print(",");
-//         myFile.print(altitude); myFile.print(",");
-//         myFile.print(theta); myFile.print(",");
-//         myFile.println(phi);
-//         // close the file:
-//         myFile.close();
-//         Serial.println("done.");
-//     } 
-//     else {
-//         // if the file didn't open, print an error:
-//         Serial.println("error opening test.txt");
-//     }
-// }
+bool recieveAndHandlePacket(){
+    bool result = false;
+    if(manager.available()){
+        unsigned long start = millis();
+      //Serial.println("Received a message in the radio loop");
+      // Wait for a message addressed to us from the client
+      uint8_t len = sizeof(recv_buf);
+      uint8_t from;
+      if (manager.recvfrom(recv_buf, &len, &from)){
+        // Serial.print("Got packet from ");
+        // Serial.println(from);
+        result = handlePacket(rawBufToMPP(recv_buf, len));
+      }
+        unsigned long end = millis();
+        Serial.print("Time to receive and handle packet: ");
+        Serial.println(end - start);
+    }
+    return result;
+}
+
+void logStateToSd(){
+    logFile = SD.open(filename, FILE_WRITE);
+    logFile.seek(logFile.size());
+    logFile.print(millis());
+    logFile.print(",");
+    logFile.print(currentLocation.toString());
+    logFile.print(",");
+    logFile.print(currentVelocity.toString());
+    logFile.print(",");
+    logFile.print(targetLocation.toString());
+    logFile.print(",");
+    logFile.print(impactLoc.toString());
+    logFile.print(",");
+    logFile.print(isTrackGood);
+    logFile.print(",");
+    logFile.print(isArmed);
+    logFile.print(",");
+    logFile.print(didDrop);
+    logFile.print(",");
+    logFile.print(theta);
+    logFile.print(",");
+    logFile.print(phi);
+    logFile.print(",");
+    logFile.print(lastPacketReceivedTime);
+    logFile.print(",");
+    logFile.print(millis() - lastLocationUpdateTime);
+    logFile.println();
+    logFile.flush();
+    logFile.close();
+
+}
+
+void readAltitudeSensor(){
+    altitude = 3;
+}
+
+void updateLocation(){
+    Vector3d lastLocation = currentLocation;
+    currentLocation = getPayloadLocation(altitude, theta, phi);
+    currentVelocity = getVelocity(lastLocation, currentLocation, millis() - lastLocationUpdateTime);
+    Vector3d impactLoc = getImpactLocation(currentLocation, currentVelocity, targetLocation);
+    Serial.print("Current location: ");
+    Serial.println(currentLocation.toString());
+    Serial.print("Current velocity: ");
+    Serial.println(currentVelocity.toString());
+    Serial.print("Impact location: ");
+    Serial.println(impactLoc.toString());
+
+    lastLocationUpdateTime = millis();
+}
+
+void dropPayload(){
+
+}
+
+void sendTelemetry(){
+
+}
+
+void payloadsetup()
+{
+    Serial.begin(115200);
+    Serial.println("Payload controller starting up");
+    
+    initRadio(driver, manager);
+
+    initSdLogging();
+}
+
+void payloadloop() {
+    if(recieveAndHandlePacket()){
+        readAltitudeSensor();
+        updateLocation();
+        if(shouldDrop(impactLoc, targetLocation, isTrackGood, isArmed)){
+            dropPayload();
+        }
+        sendTelemetry();
+    }
+    logStateToSd();
+    if(Serial.available()){
+        Serial.println("Serial input detected");
+        String input = Serial.readString();
+        if(input.startsWith("stop")){
+            Serial.println("Stopping");
+            SD.end();
+            while(1);
+        }
+    }
+}

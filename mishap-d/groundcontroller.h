@@ -64,7 +64,7 @@ void groundloop(){
   // send a packet every second with the current time and the esp32's built-in hall effect sensor
   // use laserangledata for testing
 
-  LaserAngleData lad = LaserAngleData{millis()/1000.0, hallRead()};
+  LaserAngleData lad = LaserAngleData{millis()/1000.0, hallRead(), false, false};
   uint8_t send_buf[RH_RF95_MAX_MESSAGE_LEN];
   constructRawDataPacket(lad, PacketType::LaserAngle, send_buf);
   Serial.print("Sending lad packet: ");
