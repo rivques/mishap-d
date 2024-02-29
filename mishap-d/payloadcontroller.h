@@ -24,6 +24,7 @@ Vector3d impactLoc;
 float theta;
 float phi;
 float altitude;
+float impactToTarget;
 bool isTrackGood;
 bool isArmed;
 bool didDrop;
@@ -171,12 +172,12 @@ Vector3d getPayloadLocation(float altitude, float theta, float phi) {
 }
 
 Vector3d getVelocity(Vector3d lastLocation, Vector3d currentLocation, unsigned long timeBetween) {
-    Vector3d velocity = (currentLocation-lastLocation)/(timeBetween*1000);
+    Vector3d velocity = (currentLocation-lastLocation)/(static_cast<float>(timeBetween)/1000.0f);
     return velocity;
 }
 
 bool shouldDrop(Vector3d impactLoc, Vector3d targetLoc, bool isTrackGood, bool isArmed) {
-    if (isArmed == true && isTrackGood == true && (impactLoc - targetLoc).magnitude() <= ACCEPTABLE_TARGET_ERROR) {
+    if (isArmed == true && isTrackGood == true && impactToTarget <= ACCEPTABLE_TARGET_ERROR) {
         return true;
     }
     else {
@@ -247,10 +248,14 @@ void updateLocation(){
     Vector3d impactLoc = getImpactLocation(currentLocation, currentVelocity, targetLocation);
     Serial.print("Current location: ");
     Serial.println(currentLocation.toString());
+    Serial.print("Last location: ");
+    Serial.println(lastLocation.toString());
     Serial.print("Current velocity: ");
     Serial.println(currentVelocity.toString());
     Serial.print("Impact location: ");
     Serial.println(impactLoc.toString());
+    
+    impactToTarget = (impactLoc - currentLocation).magnitude();
 
     lastLocationUpdateTime = millis();
 }
@@ -260,7 +265,16 @@ void dropPayload(){
 }
 
 void sendTelemetry(){
-
+    PayloadTelemetryData telem = PayloadTelemetryData{
+        millis(),
+        currentLocation,
+        currentVelocity,
+        impactLoc,
+        didDrop
+    };
+    uint8_t send_buf[RH_RF95_MAX_MESSAGE_LEN];
+    constructRawDataPacket(telem, PacketType::PayloadTelemetry, send_buf);
+    manager.sendto(send_buf, sizeof(send_buf), GROUND_LORA_ADDR);
 }
 
 void payloadsetup()
