@@ -18,29 +18,29 @@
 * Jakob: idk Jakob you fill this out
 ### Week of 1/15
 * River: Implement vector math, wire test radios
-* Graham: 
+* Graham: Continuing physics sim
 * Jakob: idk Jakob you fill this out
 ### Week of 1/22
 * River: Get radios talking
-* Graham: 
+* Graham: Finish physics Sim, start on menu
 * Jakob: idk Jakob you fill this out
 ### Week of 1/29
 * River: Start developing packet encoding
-* Graham: 
+* Graham: Continue menu
 * Jakob: idk Jakob you fill this out
 ### Week of 2/5
 * River: Finish packet encoding
-* Graham: 
+* Graham: continue menu
 * Jakob: idk Jakob you fill this out
 ### Week of 2/12
 * River: Work on multithreaded sending of packets
-* Graham: 
+* Graham: Continue menu
 * Jakob: idk Jakob you fill this out
 ### Week of 2/19
 * River: Abandon multithreading, refactor
-* Graham: 
+* Graham: Continue menu
 * Jakob: idk Jakob you fill this out
 ### Week of 2/26
 * River: Work on logging to SD card
-* Graham: 
+* Graham: Finish menu
 * Jakob: idk Jakob you fill this out
