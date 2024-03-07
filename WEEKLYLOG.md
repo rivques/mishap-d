@@ -44,3 +44,7 @@
 * River: Work on logging to SD card
 * Graham: Finish menu
 * Jakob: idk Jakob you fill this out
+### Week of 3/4
+* River: Finish SD card logging, start integrating menu code
+* Graham: Start working on LIDAR sensor
+* Jakob: idk Jakob you fill this out
