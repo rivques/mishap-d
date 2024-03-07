@@ -24,7 +24,7 @@
 #include <stdio.h>
 #include <Adafruit_GFX.h>
 #include <Adafruit_SSD1306.h>
-#include "PinChangeInterrupt.h"
+//#include "PinChangeInterrupt.h"
 
 //encoder pins & variables
 #define CLK 2
