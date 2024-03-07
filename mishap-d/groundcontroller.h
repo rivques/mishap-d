@@ -1,15 +1,41 @@
 #include <Arduino.h>
 #include "mishapprotocol.h"
 #include "config.h"
-//#include <Adafruit_GFX.h>    // Core graphics library
-//#include <Adafruit_SSD1306.h> // Hardware-specific library for ST7789
-//Adafruit_SSD1306 oleddisplay(OLED_MOSI, OLED_CLK, OLED_DC, OLED_RESET, OLED_CS);
-
+#include <Adafruit_GFX.h>     // Core graphics library
+#include <Adafruit_SSD1306.h> // Hardware-specific library for ST7789
+// Adafruit_SSD1306 oleddisplay(OLED_MOSI, OLED_CLK, OLED_DC, OLED_RESET, OLED_CS);
 
 #include <RHReliableDatagram.h>
 #include <RH_RF95.h>
 RH_RF95 driver(RFM95_CS, RFM95_INT);
 RHReliableDatagram manager(driver, GROUND_LORA_ADDR);
+Adafruit_SSD1306 display(SCREEN_WIDTH, SCREEN_HEIGHT, &Wire, OLED_RESET);
+
+// display state
+int numMenu = 8; // number of items in the menu
+int menuItem = 1;
+int curArrow;
+int lastArrow;
+int curDecimal;
+int lastDecimal;
+int pixelLength = 5 * OLED_TEXT_SIZE;
+int encTics2Switch = 3; // for the menu, how many times do you want to move the enc before it switches spots
+float disNum;
+int sigFig = 3;
+bool backButton = false;
+float displayedNumber = 0;
+bool pressed;
+int curMenuSelection = 1;
+float magnitude;
+float curNum;
+bool magChose = false;
+bool pmag;
+bool cmag;
+float pastDisNum;
+int counter;
+int currentState;
+int initState;
+unsigned long bebounceDelay = 0;
 
 void handlePacket(MishapProtocolPacket packet){
   Serial.print("Packet is of type ");
@@ -20,7 +46,8 @@ void handlePacket(MishapProtocolPacket packet){
     Serial.print(newLad.theta);
     Serial.print(" Phi: ");
     Serial.println(newLad.phi);
-  } else if(packet.packetType == PacketType::TargetSettings){
+  }
+  else if(packet.packetType == PacketType::TargetSettings){
     TargetSettingsData newTSD = decodeMPP<TargetSettingsData>(packet);
     Serial.print("Target X: ");
     Serial.print(newTSD.targetLoc.x);
@@ -28,22 +55,233 @@ void handlePacket(MishapProtocolPacket packet){
     Serial.print(newTSD.targetLoc.y);
     Serial.print(" Target Z: ");
     Serial.println(newTSD.targetLoc.z);
-  } else if(packet.packetType == PacketType::ClearedCache){
+  }
+  else if(packet.packetType == PacketType::ClearedCache){
     Serial.println("cleared cache data");
-  } else {
+  }
+  else{
     Serial.print("Received unrecognized packet with id ");
     Serial.println(packet.packetType);
   }
 }
 
+int counterToMenu(int tics, int items){
+  int menu = counter / tics;
+  return menu;
+}
+
+void menuItem1(){ // menu item display
+  display.clearDisplay();
+  display.print("stuf");
+}
+
+void menuItem2(){ // menu item display
+}
+
+void txtSetup(){
+  display.setTextSize(OLED_TEXT_SIZE); // Normal 1:1 pixel scale
+  display.setTextColor(SSD1306_WHITE); // Draw white text
+  display.setCursor(0, 0);             // Start at top-left corner
+  display.cp437(true);                 // Use full 256 char 'Code Page 437' font
+}
+
+void mainMenuSetup(){
+  // menu Items
+  display.clearDisplay();
+  display.setCursor(0, 0);
+  display.println(F(" MenuItem#1")); // prints menu items in order vertically
+  display.println(F(" MenuItem#2"));
+  display.println(F(" MenuItem#3"));
+  display.println(F(" MenuItem#4"));
+  display.println(F(" MenuItem#5"));
+  display.println(F(" MenuItem#6"));
+  display.println(F(" MenuItem#7"));
+  display.println(F(" MenuItem#8"));
+}
+
+void encSetup(){
+  pinMode(PIN_ENCODER_CLK, INPUT); // setting inputs for the encoder
+  pinMode(PIN_ENCODER_DT, INPUT);
+  pinMode(PIN_ENCODER_SW, INPUT_PULLUP);
+  initState = digitalRead(PIN_ENCODER_CLK);
+  // attachInterrupt(0, encoderValue, CHANGE);
+  // attachInterrupt(1, encoderValue, CHANGE);
+  // attachPCINT(digitalPinToPCINT(PIN_ENCODER_SW), buttonPress, CHANGE);
+}
+
+bool buttonPress(){
+  int buttonVal = digitalRead(PIN_ENCODER_SW); // turning raw data to int
+  // If we detect LOW signal, button is pressed
+  if(buttonVal == LOW){
+    if(millis() - bebounceDelay > 200){ // debounce
+      // Serial.println("Button pressed!");
+    }
+    long debounceDelay = millis();
+  }
+  return !buttonVal;
+}
+
+void encoderValue(){
+  /*
+    Tics is the amount of times you want the encoder to "click" before it switches menu items.
+    This is used because the encoder doesn get read perfectly so a coushin is added to increase accuracy of menu selection.
+
+    Items represents the amount of items in the selected menu.
+    The more items the longer you want to be able to scroll before the selection arrow goes back to the top.
+  */
+  // Read the current state of PIN_ENCODER_CLK
+  currentState = digitalRead(PIN_ENCODER_CLK);
+  // If last and current state of PIN_ENCODER_CLK are different, then we can be sure that the pulse occurred
+  if(currentState != initState && currentState == 1){
+    // Encoder is rotating counterclockwise so we decrement the counter
+    if(digitalRead(PIN_ENCODER_DT) != currentState){
+      counter++;
+    }
+    else{
+      // Encoder is rotating clockwise so we increment the counter
+      counter--;
+    }
+    // print the value in the serial monitor window
+  }
+  // Remember last PIN_ENCODER_CLK state for next cycle
+  initState = currentState;
+  if(counter >= numMenu * encTics2Switch){
+    counter = 2; // reset counter when it hits the "bottom" of the menu
+  }
+  if(counter <= 1){
+    counter = (numMenu * encTics2Switch) - 1;
+  }
+}
+
+int menuSelect(int enc){
+  encTics2Switch = 3; // presets, fully customizable when calling encoderValue();
+  numMenu = 8;        // items in menu
+
+  curArrow = 8 * counterToMenu(encTics2Switch, numMenu); // location of arrow
+
+  display.setCursor(1, curArrow);
+  display.print(F(">"));
+  ;
+  if(lastArrow != curArrow){
+
+    int bottomOfPixel = lastArrow + 6;
+
+    for(int i = lastArrow; i <= bottomOfPixel; i++){ // turns all pixels in a 5x6 to black, effectivly deleting the arrow
+      for(int ii = 1; ii <= pixelLength; ii++){                                          //
+        display.drawPixel(ii, i, SSD1306_BLACK); //
+      };
+    }
+    lastArrow = curArrow;
+  }
+  int menuItem = curArrow / 8;
+  return menuItem;
+}
+
+void chooseNumber(){
+  display.clearDisplay();
+  cmag = magChose;
+
+  if(magChose == false){
+    numMenu = 10; // items in menu
+    encTics2Switch = 2;
+    curDecimal = counter / 2;
+    magnitude = map(counterToMenu(encTics2Switch, numMenu), 1, 10, -5, 5); // maps values from 1-10 to -5 - 5, this will be the exponent that 10 is to the power to. This decides the magnitude of the number.
+    if(magnitude > 0){
+      disNum = round(pow(10, magnitude)); // rounds number because some math is funky and the rounding the computer does makes the number bad. so i round it to the magnitude in digits.
+    }
+    else{
+      disNum = pow(10, magnitude);
+    }
+  }
+  else if(magChose == true){
+    disNum = counterToMenu(encTics2Switch, numMenu) * pow(10, magnitude); // encoder value * 10^magnitude returned from last function = the printed value
+  }
+  if(buttonPress() == true){
+    magChose = !magChose;
+    while(buttonPress() == true){
+    }
+  }
+  Serial.println(pastDisNum);
+  if(pmag == 1 && cmag == 0){
+    Serial.println("happeneing");
+    displayedNumber = displayedNumber + pastDisNum;
+  }
+  pmag = cmag;
+  pastDisNum = disNum;
+}
+
+void displaySetup(){
+  pinMode(PIN_BACK_BUTTON, INPUT_PULLUP);
+
+  // SSD1306_SWITCHCAPVCC = generate display voltage from 3.3V internally
+  if(!display.begin(SSD1306_SWITCHCAPVCC, OLED_I2C_ADDR)){
+    Serial.println(F("SSD1306 allocation failed"));
+    for(;;)
+      ; // Don't proceed, loop forever
+  }
+
+  // Show initial display buffer contents on the screen --
+  // the library initializes this with an Adafruit splash screen.
+  ;
+  delay(2000); // Pause for 2 seconds
+
+  // Clear the buffer
+  display.clearDisplay();
+
+  encSetup();
+
+  txtSetup();
+
+  Serial.println("done setup");
+}
+
+void doDisplay(){
+  display.display();
+  unsigned long loopStart = millis();
+  encoderValue();
+  backButton = !digitalRead(PIN_BACK_BUTTON);
+  if(curMenuSelection == 1){ // main menu selection screen
+    displayedNumber = 0;
+    mainMenuSetup();
+    int menuSelection = menuSelect(counter);
+    if(buttonPress() == true){
+      curMenuSelection = menuSelection + 2;
+      display.clearDisplay();
+      while(buttonPress() == true){
+      }
+    }
+  }
+  else if(curMenuSelection == 2){
+    menuItem1();
+  }
+  else if(curMenuSelection == 3){
+    chooseNumber();
+    display.setCursor(0, 0);
+    display.print("Choose Number:");
+    display.setCursor(0, 8);
+    display.print(disNum, 5); // display number
+    display.setCursor(0, 16);
+    display.print("Number Chosen:");
+    display.setCursor(0, 24);
+    display.print(displayedNumber, 5); // display number
+    if(backButton == true){
+      curMenuSelection = 1;
+    }
+  }
+  Serial.print("Loop took ");
+  Serial.println(millis() - loopStart);
+}
 
 void groundsetup(){
   Serial.begin(115200);
   initRadio(driver, manager);
+  Serial.println("setting up display");
+  displaySetup();
+  Serial.println("done setting up display");
   // LaserAngleData lad = LaserAngleData{1.5, 3.1415};
   // uint8_t test_buf[RH_RF95_MAX_MESSAGE_LEN];
   // constructRawDataPacket(lad, PacketType::LaserAngle, test_buf);
-  
+
   // Serial.print("Raw data: ");
   // for (int x = 0; x < 9; x++)
   // {
@@ -51,7 +289,7 @@ void groundsetup(){
   //    Serial.print(" ");
   // }
   // Serial.println();
-  
+
   // MishapProtocolPacket packet = rawBufToMPP(test_buf, sizeof(test_buf));
   // handlePacket(packet);
   // uint8_t another_buf[RH_RF95_MAX_MESSAGE_LEN];
@@ -60,26 +298,30 @@ void groundsetup(){
   // handlePacket(rawBufToMPP(another_buf, sizeof(another_buf)));
 }
 
+long lastSend = 0;
+
 void groundloop(){
+  doDisplay();
   // send a packet every second with the current time and the esp32's built-in hall effect sensor
   // use laserangledata for testing
-
-  LaserAngleData lad = LaserAngleData{millis()/1000.0, hallRead(), false, false};
-  uint8_t send_buf[RH_RF95_MAX_MESSAGE_LEN];
-  constructRawDataPacket(lad, PacketType::LaserAngle, send_buf);
-  Serial.print("Sending lad packet: ");
-  Serial.print(lad.theta);
-  Serial.print(", ");
-  Serial.println(lad.phi);
-  Serial.print("First bytes of packet: ");
-  for(int i = 0; i < 16; i++){
-    Serial.print(send_buf[i], HEX);
-    Serial.print(" ");
+  if(millis() - lastSend > 1000){
+    LaserAngleData lad = LaserAngleData{ millis() / 1000.0, hallRead(), false, false };
+    uint8_t send_buf[RH_RF95_MAX_MESSAGE_LEN];
+    constructRawDataPacket(lad, PacketType::LaserAngle, send_buf);
+    Serial.print("Sending lad packet: ");
+    Serial.print(lad.theta);
+    Serial.print(", ");
+    Serial.println(lad.phi);
+    Serial.print("First bytes of packet: ");
+    for(int i = 0; i < 16; i++){
+      Serial.print(send_buf[i], HEX);
+      Serial.print(" ");
+    }
+    Serial.println();
+    unsigned long start = millis();
+    manager.sendto(send_buf, sizeof(send_buf), PAYLOAD_LORA_ADDR);
+    Serial.print("Sent packet in ");
+    Serial.println(millis() - start);
+    lastSend = millis();
   }
-  Serial.println();
-  unsigned long start = millis();
-  manager.sendto(send_buf, sizeof(send_buf), PAYLOAD_LORA_ADDR);
-  Serial.print("Sent packet in ");
-  Serial.println(millis()-start);
-  delay(1000);
 }

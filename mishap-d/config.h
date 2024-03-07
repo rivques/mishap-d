@@ -2,8 +2,8 @@
 
 // for Reasons, this is how I'm developing two different programs with a shared library
 // uncomment the one we're doing
-//#define TARGETING_GROUND
-#define TARGETING_PAYLOAD
+#define TARGETING_GROUND
+//#define TARGETING_PAYLOAD
 
 #if defined(TARGETING_GROUND) && defined(TARGETING_PAYLOAD)
 #error Both TARGETING_GROUND and TARGETING_PAYLOAD are defined. Pick one please.
@@ -39,9 +39,14 @@
 #endif
 
 #ifdef TARGETING_GROUND
-#define OLED_MOSI 9
-#define OLED_CLK 10
-#define OLED_DC 11
-#define OLED_CS 12
-#define OLED_RESET 13
+#define OLED_RESET 27
+#define OLED_I2C_ADDR 0x3D
+#define OLED_TEXT_SIZE 1
+#define SCREEN_WIDTH 128 // OLED display width, in pixels
+#define SCREEN_HEIGHT 64 // OLED display height, in pixels
+
+#define PIN_BACK_BUTTON 5 
+#define PIN_ENCODER_CLK 35
+#define PIN_ENCODER_DT 33
+#define PIN_ENCODER_SW 32
 #endif
