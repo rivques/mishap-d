@@ -27,8 +27,7 @@ unsigned long bebounceDelay =3D 0;
 #define textSize 1
 
 // Declaration for an SSD1306 display connected to I2C (SDA, SCL pins)
-#define OLED_RESET     10 // Reset pin # (or -1 if sharing Arduino reset
-pin)
+#define OLED_RESET     10 // Reset pin # (or -1 if sharing Arduino reset pin)
 #define SCREEN_ADDRESS 0x3D ///< See datasheet for Address; 0x3D for
 128x64, 0x3C for 128x32
 Adafruit_SSD1306 display(SCREEN_WIDTH, SCREEN_HEIGHT, &Wire, OLED_RESET);
