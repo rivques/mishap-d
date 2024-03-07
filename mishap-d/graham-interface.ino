@@ -20,46 +20,55 @@
 
 #include <SPI.h>
 #include <Wire.h>
+#include <Math.h>
+#include <stdio.h>
 #include <Adafruit_GFX.h>
 #include <Adafruit_SSD1306.h>
+#include "PinChangeInterrupt.h"
+
+//encoder pins & variables
+#define CLK 2
+#define DT 3
+#define SW 4
+#define backButtonPin 6
+int counter;
+int currentState;
+int initState;
+unsigned long bebounceDelay = 0;
 
 #define SCREEN_WIDTH 128 // OLED display width, in pixels
 #define SCREEN_HEIGHT 64 // OLED display height, in pixels
+#define textSize 1
 
 // Declaration for an SSD1306 display connected to I2C (SDA, SCL pins)
-// The pins for I2C are defined by the Wire-library.
-// On an arduino UNO:       A4(SDA), A5(SCL)
-// On an arduino MEGA 2560: 20(SDA), 21(SCL)
-// On an arduino LEONARDO:   2(SDA),  3(SCL), ...
 #define OLED_RESET     10 // Reset pin # (or -1 if sharing Arduino reset pin)
 #define SCREEN_ADDRESS 0x3D ///< See datasheet for Address; 0x3D for 128x64, 0x3C for 128x32
 Adafruit_SSD1306 display(SCREEN_WIDTH, SCREEN_HEIGHT, &Wire, OLED_RESET);
 
-#define NUMFLAKES     10 // Number of snowflakes in the animation example
-
-#define LOGO_HEIGHT   16
-#define LOGO_WIDTH    16
-static const unsigned char PROGMEM logo_bmp[] =
-{ 0b00000000, 0b11000000,
-  0b00000001, 0b11000000,
-  0b00000001, 0b11000000,
-  0b00000011, 0b11100000,
-  0b11110011, 0b11100000,
-  0b11111110, 0b11111000,
-  0b01111110, 0b11111111,
-  0b00110011, 0b10011111,
-  0b00011111, 0b11111100,
-  0b00001101, 0b01110000,
-  0b00011011, 0b10100000,
-  0b00111111, 0b11100000,
-  0b00111111, 0b11110000,
-  0b01111100, 0b11110000,
-  0b01110000, 0b01110000,
-  0b00000000, 0b00110000
-};
+int numMenu = 8; //number of items in the menu
+int menuItem = 1;
+int curArrow;
+int lastArrow;
+int curDecimal;
+int lastDecimal;
+int pixelLength = 5 * textSize;
+int encTics2Switch = 3;// for the menu, how many times do you want to move the enc before it switches spots
+float disNum;
+int sigFig = 3;
+bool backButton = false;
+float displayedNumber = 0;
+bool pressed;
+int curMenuSelection = 1;
+float magnitude;
+float curNum;
+bool magChose = false;
+bool pmag;
+bool cmag;
+float pastDisNum;
 
 void setup() {
   Serial.begin(9600);
+  pinMode(backButtonPin, INPUT_PULLUP);
 
   // SSD1306_SWITCHCAPVCC = generate display voltage from 3.3V internally
   if (!display.begin(SSD1306_SWITCHCAPVCC, SCREEN_ADDRESS)) {
@@ -69,348 +78,202 @@ void setup() {
 
   // Show initial display buffer contents on the screen --
   // the library initializes this with an Adafruit splash screen.
-  display.display();
+  ;
   delay(2000); // Pause for 2 seconds
 
   // Clear the buffer
   display.clearDisplay();
 
-  // Draw a single pixel in white
-  display.drawPixel(10, 10, SSD1306_WHITE);
+  encSetup();
 
-  // Show the display buffer on the screen. You MUST call display() after
-  // drawing commands to make them visible on screen!
-  display.display();
-  delay(2000);
-  // display.display() is NOT necessary after every single drawing command,
-  // unless that's what you want...rather, you can batch up a bunch of
-  // drawing operations and then update the screen all at once by calling
-  // display.display(). These examples demonstrate both approaches...
+  txtSetup();
 
-  testdrawline();      // Draw many lines
 
-  testdrawrect();      // Draw rectangles (outlines)
+  Serial.println("done setup");
 
-  testfillrect();      // Draw rectangles (filled)
-
-  testdrawcircle();    // Draw circles (outlines)
-
-  testfillcircle();    // Draw circles (filled)
-
-  testdrawroundrect(); // Draw rounded rectangles (outlines)
-
-  testfillroundrect(); // Draw rounded rectangles (filled)
-
-  testdrawtriangle();  // Draw triangles (outlines)
-
-  testfilltriangle();  // Draw triangles (filled)
-
-  testdrawchar();      // Draw characters of the default font
-
-  testdrawstyles();    // Draw 'stylized' characters
-
-  testscrolltext();    // Draw scrolling text
-
-  testdrawbitmap();    // Draw a small bitmap image
-
-  // Invert and restore display, pausing in-between
-  display.invertDisplay(true);
-  delay(1000);
-  display.invertDisplay(false);
-  delay(1000);
-
-  testanimate(logo_bmp, LOGO_WIDTH, LOGO_HEIGHT); // Animate bitmaps
 }
 
 void loop() {
+  display.display();
+  unsigned long loopStart = millis();
+  encoderValue();
+  backButton = !digitalRead(backButtonPin);
+  if (curMenuSelection == 1) { //main menu selection screen
+    displayedNumber = 0;
+    mainMenuSetup();
+    int menuSelection = menuSelect(counter);
+    if (buttonPress() == true) {
+      curMenuSelection = menuSelection + 2;
+      display.clearDisplay();
+      while (buttonPress() == true) {}
+    }
+  }
+  else if (curMenuSelection == 2) {
+    menuItem1();
+  }
+  else if (curMenuSelection == 3) {
+    chooseNumber();
+    display.setCursor(0, 0);
+    display.print("Choose Number:");
+    display.setCursor(0, 8);
+    display.print(disNum, 5);//display number
+    display.setCursor(0, 16);
+    display.print("Number Chosen:");
+    display.setCursor(0, 24);
+    display.print(displayedNumber, 5);//display number
+    if (backButton == true) {
+      curMenuSelection = 1;
+    }
+  }
+  Serial.print("Loop took ");
+  Serial.println(millis() - loopStart);
 }
 
-void testdrawline() {
-  int16_t i;
 
-  display.clearDisplay(); // Clear display buffer
-
-  for (i = 0; i < display.width(); i += 4) {
-    display.drawLine(0, 0, i, display.height() - 1, SSD1306_WHITE);
-    display.display(); // Update screen with each newly-drawn line
-    delay(1);
-  }
-  for (i = 0; i < display.height(); i += 4) {
-    display.drawLine(0, 0, display.width() - 1, i, SSD1306_WHITE);
-    display.display();
-    delay(1);
-  }
-  delay(250);
-
-  display.clearDisplay();
-
-  for (i = 0; i < display.width(); i += 4) {
-    display.drawLine(0, display.height() - 1, i, 0, SSD1306_WHITE);
-    display.display();
-    delay(1);
-  }
-  for (i = display.height() - 1; i >= 0; i -= 4) {
-    display.drawLine(0, display.height() - 1, display.width() - 1, i, SSD1306_WHITE);
-    display.display();
-    delay(1);
-  }
-  delay(250);
-
-  display.clearDisplay();
-
-  for (i = display.width() - 1; i >= 0; i -= 4) {
-    display.drawLine(display.width() - 1, display.height() - 1, i, 0, SSD1306_WHITE);
-    display.display();
-    delay(1);
-  }
-  for (i = display.height() - 1; i >= 0; i -= 4) {
-    display.drawLine(display.width() - 1, display.height() - 1, 0, i, SSD1306_WHITE);
-    display.display();
-    delay(1);
-  }
-  delay(250);
-
-  display.clearDisplay();
-
-  for (i = 0; i < display.height(); i += 4) {
-    display.drawLine(display.width() - 1, 0, 0, i, SSD1306_WHITE);
-    display.display();
-    delay(1);
-  }
-  for (i = 0; i < display.width(); i += 4) {
-    display.drawLine(display.width() - 1, 0, i, display.height() - 1, SSD1306_WHITE);
-    display.display();
-    delay(1);
-  }
-
-  delay(2000); // Pause for 2 seconds
-}
-
-void testdrawrect(void) {
-  display.clearDisplay();
-
-  for (int16_t i = 0; i < display.height() / 2; i += 2) {
-    display.drawRect(i, i, display.width() - 2 * i, display.height() - 2 * i, SSD1306_WHITE);
-    display.display(); // Update screen with each newly-drawn rectangle
-    delay(1);
-  }
-
-  delay(2000);
-}
-
-void testfillrect(void) {
-  display.clearDisplay();
-
-  for (int16_t i = 0; i < display.height() / 2; i += 3) {
-    // The INVERSE color is used so rectangles alternate white/black
-    display.fillRect(i, i, display.width() - i * 2, display.height() - i * 2, SSD1306_INVERSE);
-    display.display(); // Update screen with each newly-drawn rectangle
-    delay(1);
-  }
-
-  delay(2000);
-}
-
-void testdrawcircle(void) {
-  display.clearDisplay();
-
-  for (int16_t i = 0; i < max(display.width(), display.height()) / 2; i += 2) {
-    display.drawCircle(display.width() / 2, display.height() / 2, i, SSD1306_WHITE);
-    display.display();
-    delay(1);
-  }
-
-  delay(2000);
-}
-
-void testfillcircle(void) {
-  display.clearDisplay();
-
-  for (int16_t i = max(display.width(), display.height()) / 2; i > 0; i -= 3) {
-    // The INVERSE color is used so circles alternate white/black
-    display.fillCircle(display.width() / 2, display.height() / 2, i, SSD1306_INVERSE);
-    display.display(); // Update screen with each newly-drawn circle
-    delay(1);
-  }
-
-  delay(2000);
-}
-
-void testdrawroundrect(void) {
-  display.clearDisplay();
-
-  for (int16_t i = 0; i < display.height() / 2 - 2; i += 2) {
-    display.drawRoundRect(i, i, display.width() - 2 * i, display.height() - 2 * i,
-                          display.height() / 4, SSD1306_WHITE);
-    display.display();
-    delay(1);
-  }
-
-  delay(2000);
-}
-
-void testfillroundrect(void) {
-  display.clearDisplay();
-
-  for (int16_t i = 0; i < display.height() / 2 - 2; i += 2) {
-    // The INVERSE color is used so round-rects alternate white/black
-    display.fillRoundRect(i, i, display.width() - 2 * i, display.height() - 2 * i,
-                          display.height() / 4, SSD1306_INVERSE);
-    display.display();
-    delay(1);
-  }
-
-  delay(2000);
-}
-
-void testdrawtriangle(void) {
-  display.clearDisplay();
-
-  for (int16_t i = 0; i < max(display.width(), display.height()) / 2; i += 5) {
-    display.drawTriangle(
-      display.width() / 2  , display.height() / 2 - i,
-      display.width() / 2 - i, display.height() / 2 + i,
-      display.width() / 2 + i, display.height() / 2 + i, SSD1306_WHITE);
-    display.display();
-    delay(1);
-  }
-
-  delay(2000);
-}
-
-void testfilltriangle(void) {
-  display.clearDisplay();
-
-  for (int16_t i = max(display.width(), display.height()) / 2; i > 0; i -= 5) {
-    // The INVERSE color is used so triangles alternate white/black
-    display.fillTriangle(
-      display.width() / 2  , display.height() / 2 - i,
-      display.width() / 2 - i, display.height() / 2 + i,
-      display.width() / 2 + i, display.height() / 2 + i, SSD1306_INVERSE);
-    display.display();
-    delay(1);
-  }
-
-  delay(2000);
-}
-
-void testdrawchar(void) {
-  display.clearDisplay();
-
-  display.setTextSize(1);      // Normal 1:1 pixel scale
+void txtSetup() {
+  display.setTextSize(textSize);      // Normal 1:1 pixel scale
   display.setTextColor(SSD1306_WHITE); // Draw white text
   display.setCursor(0, 0);     // Start at top-left corner
   display.cp437(true);         // Use full 256 char 'Code Page 437' font
-
-  // Not all the characters will fit on the display. This is normal.
-  // Library will draw what it can and the rest will be clipped.
-  for (int16_t i = 0; i < 256; i++) {
-    if (i == '\n') display.write(' ');
-    else          display.write(i);
-  }
-
-  display.display();
-  delay(2000);
 }
 
-void testdrawstyles(void) {
+void mainMenuSetup() {
+  //menu Items
   display.clearDisplay();
-
-  display.setTextSize(1);             // Normal 1:1 pixel scale
-  display.setTextColor(SSD1306_WHITE);        // Draw white text
-  display.setCursor(0, 0);            // Start at top-left corner
-  display.println(F("Hello, world!"));
-
-  display.setTextColor(SSD1306_BLACK, SSD1306_WHITE); // Draw 'inverse' text
-  display.println(3.141592);
-
-  display.setTextSize(2);             // Draw 2X-scale text
-  display.setTextColor(SSD1306_WHITE);
-  display.print(F("0x")); display.println(0xDEADBEEF, HEX);
-
-  display.display();
-  delay(2000);
+  display.setCursor(0, 0);
+  display.println(F(" MenuItem#1"));//prints menu items in order vertically
+  display.println(F(" MenuItem#2"));
+  display.println(F(" MenuItem#3"));
+  display.println(F(" MenuItem#4"));
+  display.println(F(" MenuItem#5"));
+  display.println(F(" MenuItem#6"));
+  display.println(F(" MenuItem#7"));
+  display.println(F(" MenuItem#8"));
 }
 
-void testscrolltext(void) {
-  display.clearDisplay();
-
-  display.setTextSize(2); // Draw 2X-scale text
-  display.setTextColor(SSD1306_WHITE);
-  display.setCursor(10, 0);
-  display.println(F("scroll"));
-  display.display();      // Show initial text
-  delay(100);
-
-  // Scroll in various directions, pausing in-between:
-  display.startscrollright(0x00, 0x0F);
-  delay(2000);
-  display.stopscroll();
-  delay(1000);
-  display.startscrollleft(0x00, 0x0F);
-  delay(2000);
-  display.stopscroll();
-  delay(1000);
-  display.startscrolldiagright(0x00, 0x07);
-  delay(2000);
-  display.startscrolldiagleft(0x00, 0x07);
-  delay(2000);
-  display.stopscroll();
-  delay(1000);
+void encSetup() {
+  pinMode(CLK, INPUT);//setting inputs for the encoder
+  pinMode(DT, INPUT);
+  pinMode(SW, INPUT_PULLUP);
+  initState = digitalRead(CLK);
+  attachInterrupt(0, encoderValue, CHANGE);
+  attachInterrupt(1, encoderValue, CHANGE);
+  attachPCINT(digitalPinToPCINT(SW), buttonPress, CHANGE);
 }
 
-void testdrawbitmap(void) {
-  display.clearDisplay();
 
-  display.drawBitmap(
-    (display.width()  - LOGO_WIDTH ) / 2,
-    (display.height() - LOGO_HEIGHT) / 2,
-    logo_bmp, LOGO_WIDTH, LOGO_HEIGHT, 1);
-  display.display();
-  delay(1000);
-}
-
-#define XPOS   0 // Indexes into the 'icons' array in function below
-#define YPOS   1
-#define DELTAY 2
-
-void testanimate(const uint8_t *bitmap, uint8_t w, uint8_t h) {
-  int8_t f, icons[NUMFLAKES][3];
-
-  // Initialize 'snowflake' positions
-  for (f = 0; f < NUMFLAKES; f++) {
-    icons[f][XPOS]   = random(1 - LOGO_WIDTH, display.width());
-    icons[f][YPOS]   = -LOGO_HEIGHT;
-    icons[f][DELTAY] = random(1, 6);
-    Serial.print(F("x: "));
-    Serial.print(icons[f][XPOS], DEC);
-    Serial.print(F(" y: "));
-    Serial.print(icons[f][YPOS], DEC);
-    Serial.print(F(" dy: "));
-    Serial.println(icons[f][DELTAY], DEC);
-  }
-
-  for (;;) { // Loop forever...
-    display.clearDisplay(); // Clear the display buffer
-
-    // Draw each snowflake:
-    for (f = 0; f < NUMFLAKES; f++) {
-      display.drawBitmap(icons[f][XPOS], icons[f][YPOS], bitmap, w, h, SSD1306_WHITE);
+bool buttonPress() {
+  int buttonVal = digitalRead(SW);//turning raw data to int
+  //If we detect LOW signal, button is pressed
+  if (buttonVal == LOW) {
+    if (millis() - bebounceDelay > 200) {//debounce
+      //Serial.println("Button pressed!");
     }
+    long debounceDelay = millis();
+  }
+  return !buttonVal;
+}
 
-    display.display(); // Show the display buffer on the screen
-    delay(200);        // Pause for 1/10 second
+void encoderValue() {
+  /*
+    Tics is the amount of times you want the encoder to "click" before it switches menu items.
+    This is used because the encoder doesn get read perfectly so a coushin is added to increase accuracy of menu selection.
 
-    // Then update coordinates of each flake...
-    for (f = 0; f < NUMFLAKES; f++) {
-      icons[f][YPOS] += icons[f][DELTAY];
-      // If snowflake is off the bottom of the screen...
-      if (icons[f][YPOS] >= display.height()) {
-        // Reinitialize to a random position, just off the top
-        icons[f][XPOS]   = random(1 - LOGO_WIDTH, display.width());
-        icons[f][YPOS]   = -LOGO_HEIGHT;
-        icons[f][DELTAY] = random(1, 6);
+    Items represents the amount of items in the selected menu.
+    The more items the longer you want to be able to scroll before the selection arrow goes back to the top.
+  */
+  // Read the current state of CLK
+  currentState = digitalRead(CLK);
+  // If last and current state of CLK are different, then we can be sure that the pulse occurred
+  if (currentState != initState  && currentState == 1) {
+    // Encoder is rotating counterclockwise so we decrement the counter
+    if (digitalRead(DT) != currentState) {
+      counter ++;
+    }
+    else {
+      // Encoder is rotating clockwise so we increment the counter
+      counter --;
+    }
+    // print the value in the serial monitor window
+  }
+  // Remember last CLK state for next cycle
+  initState = currentState;
+  if (counter >= numMenu * encTics2Switch) {
+    counter = 2;//reset counter when it hits the "bottom" of the menu
+  }
+  if (counter <= 1) {
+    counter = (numMenu * encTics2Switch) - 1;
+  }
+}
+
+int menuSelect(int enc) {
+  encTics2Switch = 3;//presets, fully customizable when calling encoderValue();
+  numMenu = 8;//items in menu
+
+  curArrow = 8 * counterToMenu(encTics2Switch, numMenu);//location of arrow
+
+  display.setCursor(1, curArrow);
+  display.print(F(">"));
+  ;
+  if (lastArrow != curArrow) {
+
+    int bottomOfPixel = lastArrow + 6;
+
+    for (int i = lastArrow; i <= bottomOfPixel;  i++) { //turns all pixels in a 5x6 to black, effectivly deleting the arrow
+      for (int ii = 1; ii <= pixelLength; ii++) { //
+        display.drawPixel(ii, i, SSD1306_BLACK);//
       }
+      ;
+    }
+    lastArrow = curArrow;
+  }
+  int menuItem = curArrow / 8;
+  return menuItem;
+}
+
+void chooseNumber() {
+  display.clearDisplay();
+  cmag = magChose;
+  
+  if (magChose == false) {
+    numMenu = 10;//items in menu
+    encTics2Switch = 2;
+    curDecimal = counter / 2;
+    magnitude = map(counterToMenu(encTics2Switch, numMenu), 1, 10, -5, 5);//maps values from 1-10 to -5 - 5, this will be the exponent that 10 is to the power to. This decides the magnitude of the number.
+    if (magnitude > 0) {
+      disNum = round(pow(10, magnitude));//rounds number because some math is funky and the rounding the computer does makes the number bad. so i round it to the magnitude in digits.
+    }
+    else {
+      disNum = pow(10, magnitude);
     }
   }
+  else if (magChose == true) {
+    disNum = counterToMenu(encTics2Switch, numMenu) * pow(10, magnitude); //encoder value * 10^magnitude returned from last function = the printed value
+  }
+  if (buttonPress() == true) {
+    magChose = !magChose;
+    while (buttonPress() == true) {}
+  } 
+  Serial.println(pastDisNum);
+  if (pmag == 1 && cmag == 0) {
+    Serial.println("happeneing");
+    displayedNumber = displayedNumber + pastDisNum;
+  }
+  pmag = cmag;
+  pastDisNum = disNum;
+}
+
+
+int counterToMenu(int tics, int items) {
+  int menu = counter / tics;
+  return menu;
+}
+
+void menuItem1() { //menu item display
+  display.clearDisplay();
+  display.print("stuf");
+}
+
+void menuItem2() { //menu item display
+
 }
