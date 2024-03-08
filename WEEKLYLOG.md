@@ -15,36 +15,36 @@
 ### Week of 1/8
 * River: Lay out skeleton of software architecture
 * Graham: Start work on physics sim
-* Jakob: idk Jakob you fill this out
+* Jakob: Work on trigger grip and "flight stick" surfaces 
 ### Week of 1/15
 * River: Implement vector math, wire test radios
 * Graham: Continuing physics sim
-* Jakob: idk Jakob you fill this out
+* Jakob: Implement electronics into the trigger grip and work on the printability 
 ### Week of 1/22
 * River: Get radios talking
 * Graham: Finish physics Sim, start on menu
-* Jakob: idk Jakob you fill this out
+* Jakob: Start on the rest of the revolution mechanism 
 ### Week of 1/29
 * River: Start developing packet encoding
 * Graham: Continue menu
-* Jakob: idk Jakob you fill this out
+* Jakob: Finish revolution mechanism 
 ### Week of 2/5
 * River: Finish packet encoding
 * Graham: continue menu
-* Jakob: idk Jakob you fill this out
+* Jakob: Laser testing and scope testing 
 ### Week of 2/12
 * River: Work on multithreaded sending of packets
 * Graham: Continue menu
-* Jakob: idk Jakob you fill this out
+* Jakob: Mounting places for laser and scope
 ### Week of 2/19
 * River: Abandon multithreading, refactor
 * Graham: Continue menu
-* Jakob: idk Jakob you fill this out
+* Jakob: reprint and test OLED screen fit in trigger grip
 ### Week of 2/26
 * River: Work on logging to SD card
 * Graham: Finish menu
-* Jakob: idk Jakob you fill this out
+* Jakob: Put together the trigger grip and Wire the rotation pipe 
 ### Week of 3/4
 * River: Finish SD card logging, start integrating menu code
 * Graham: Start working on LIDAR sensor
-* Jakob: idk Jakob you fill this out
+* Jakob: Put together the bottom rotational section of the station 
