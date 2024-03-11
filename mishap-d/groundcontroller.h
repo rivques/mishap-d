@@ -11,6 +11,8 @@ RH_RF95 driver(RFM95_CS, RFM95_INT);
 RHReliableDatagram manager(driver, GROUND_LORA_ADDR);
 Adafruit_SSD1306 display(SCREEN_WIDTH, SCREEN_HEIGHT, &Wire, OLED_RESET);
 
+bool needSendTargetPos = false;
+
 // display state
 int numMenu = 8; // number of items in the menu
 int menuItem = 1;
@@ -89,10 +91,10 @@ void mainMenuSetup(){
   // menu Items
   display.clearDisplay();
   display.setCursor(0, 0);
-  display.println(F(" MenuItem#1")); // prints menu items in order vertically
-  display.println(F(" MenuItem#2"));
-  display.println(F(" MenuItem#3"));
-  display.println(F(" MenuItem#4"));
+  display.println(F(" Payload Status")); // prints menu items in order vertically
+  display.println(F(" Set Target X"));
+  display.println(F(" Set Target Y"));
+  display.println(F(" Set Target Z"));
   display.println(F(" MenuItem#5"));
   display.println(F(" MenuItem#6"));
   display.println(F(" MenuItem#7"));
@@ -317,10 +319,7 @@ void groundsetup(){
 
 long lastSend = 0;
 
-void groundloop(){
-  doDisplay();
-  // send a packet every second with the current time and the esp32's built-in hall effect sensor
-  // use laserangledata for testing
+void doLaserAngles(){
   if(millis() - lastSend > 1000){
     LaserAngleData lad = LaserAngleData{ millis() / 1000.0, hallRead(), false, false };
     uint8_t send_buf[RH_RF95_MAX_MESSAGE_LEN];
@@ -341,4 +340,11 @@ void groundloop(){
     Serial.println(millis() - start);
     lastSend = millis();
   }
+}
+
+void groundloop(){
+  doDisplay();
+  // send a packet every second with the current time and the esp32's built-in hall effect sensor
+  // use laserangledata for testing
+  doLaserAngles();
 }
