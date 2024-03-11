@@ -48,3 +48,7 @@
 * River: Finish SD card logging, start integrating menu code
 * Graham: Start working on LIDAR sensor
 * Jakob: Put together the bottom rotational section of the station 
+### Week of 3/11
+* River: Refactor menu code
+* Graham:
+* Jakob:

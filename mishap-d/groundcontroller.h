@@ -22,7 +22,7 @@ int pixelLength = 5 * OLED_TEXT_SIZE;
 int encTics2Switch = 3; // for the menu, how many times do you want to move the enc before it switches spots
 float disNum;
 int sigFig = 3;
-bool backButton = false;
+bool backButtonState = false;
 float displayedNumber = 0;
 bool pressed;
 int curMenuSelection = 1;
@@ -32,7 +32,7 @@ bool magChose = false;
 bool pmag;
 bool cmag;
 float pastDisNum;
-int counter;
+int scaledEncoderPosition;
 int currentState;
 int initState;
 unsigned long bebounceDelay = 0;
@@ -66,11 +66,11 @@ void handlePacket(MishapProtocolPacket packet){
 }
 
 int counterToMenu(int tics, int items){
-  int menu = counter / tics;
+  int menu = scaledEncoderPosition / tics;
   return menu;
 }
 
-void menuItem1(){ // menu item display
+void showPayloadStatus(){ // menu item display
   display.clearDisplay();
   display.print("stuf");
 }
@@ -104,12 +104,12 @@ void encSetup(){
   pinMode(PIN_ENCODER_DT, INPUT);
   pinMode(PIN_ENCODER_SW, INPUT_PULLUP);
   initState = digitalRead(PIN_ENCODER_CLK);
-  // attachInterrupt(0, encoderValue, CHANGE);
-  // attachInterrupt(1, encoderValue, CHANGE);
+  // attachInterrupt(0, updateEncoderValue, CHANGE);
+  // attachInterrupt(1, updateEncoderValue, CHANGE);
   // attachPCINT(digitalPinToPCINT(PIN_ENCODER_SW), buttonPress, CHANGE);
 }
 
-bool buttonPress(){
+bool encoderIsPressed(){
   int buttonVal = digitalRead(PIN_ENCODER_SW); // turning raw data to int
   // If we detect LOW signal, button is pressed
   if(buttonVal == LOW){
@@ -121,7 +121,7 @@ bool buttonPress(){
   return !buttonVal;
 }
 
-void encoderValue(){
+void updateEncoderValue(){
   /*
     Tics is the amount of times you want the encoder to "click" before it switches menu items.
     This is used because the encoder doesn get read perfectly so a coushin is added to increase accuracy of menu selection.
@@ -133,28 +133,28 @@ void encoderValue(){
   currentState = digitalRead(PIN_ENCODER_CLK);
   // If last and current state of PIN_ENCODER_CLK are different, then we can be sure that the pulse occurred
   if(currentState != initState && currentState == 1){
-    // Encoder is rotating counterclockwise so we decrement the counter
+    // Encoder is rotating counterclockwise so we decrement the scaledEncoderPosition
     if(digitalRead(PIN_ENCODER_DT) != currentState){
-      counter++;
+      scaledEncoderPosition++;
     }
     else{
-      // Encoder is rotating clockwise so we increment the counter
-      counter--;
+      // Encoder is rotating clockwise so we increment the scaledEncoderPosition
+      scaledEncoderPosition--;
     }
     // print the value in the serial monitor window
   }
   // Remember last PIN_ENCODER_CLK state for next cycle
   initState = currentState;
-  if(counter >= numMenu * encTics2Switch){
-    counter = 2; // reset counter when it hits the "bottom" of the menu
+  if(scaledEncoderPosition >= numMenu * encTics2Switch){
+    scaledEncoderPosition = 2; // reset scaledEncoderPosition when it hits the "bottom" of the menu
   }
-  if(counter <= 1){
-    counter = (numMenu * encTics2Switch) - 1;
+  if(scaledEncoderPosition <= 1){
+    scaledEncoderPosition = (numMenu * encTics2Switch) - 1;
   }
 }
 
-int menuSelect(int enc){
-  encTics2Switch = 3; // presets, fully customizable when calling encoderValue();
+int getMenuSelectionFromEncVal(int enc){
+  encTics2Switch = 3; // presets, fully customizable when calling updateEncoderValue();
   numMenu = 8;        // items in menu
 
   curArrow = 8 * counterToMenu(encTics2Switch, numMenu); // location of arrow
@@ -184,7 +184,7 @@ void chooseNumber(){
   if(magChose == false){
     numMenu = 10; // items in menu
     encTics2Switch = 2;
-    curDecimal = counter / 2;
+    curDecimal = scaledEncoderPosition / 2;
     magnitude = map(counterToMenu(encTics2Switch, numMenu), 1, 10, -5, 5); // maps values from 1-10 to -5 - 5, this will be the exponent that 10 is to the power to. This decides the magnitude of the number.
     if(magnitude > 0){
       disNum = round(pow(10, magnitude)); // rounds number because some math is funky and the rounding the computer does makes the number bad. so i round it to the magnitude in digits.
@@ -196,9 +196,9 @@ void chooseNumber(){
   else if(magChose == true){
     disNum = counterToMenu(encTics2Switch, numMenu) * pow(10, magnitude); // encoder value * 10^magnitude returned from last function = the printed value
   }
-  if(buttonPress() == true){
+  if(encoderIsPressed() == true){
     magChose = !magChose;
-    while(buttonPress() == true){
+    while(encoderIsPressed() == true){
     }
   }
   Serial.println(pastDisNum);
@@ -222,8 +222,8 @@ void displaySetup(){
 
   // Show initial display buffer contents on the screen --
   // the library initializes this with an Adafruit splash screen.
-  ;
-  delay(2000); // Pause for 2 seconds
+  //;
+  //delay(2000); // Pause for 2 seconds
 
   // Clear the buffer
   display.clearDisplay();
@@ -235,38 +235,55 @@ void displaySetup(){
   Serial.println("done setup");
 }
 
+void selectNumberToVariable(float* target, String name){
+  chooseNumber();
+  display.setCursor(0, 0);
+  display.print("Choose ");
+  display.print(name);
+  display.setCursor(0, 8);
+  display.print(disNum, 5); // display number
+  display.setCursor(0, 16);
+  display.print("Final ");
+  display.print(name);
+  display.setCursor(0, 24);
+  display.print(displayedNumber, 5); // display number
+  if(backButtonState == true){
+    // copy the number to the target
+    *target = displayedNumber;
+    curMenuSelection = 1;
+  }
+}
+float targetX = 0;
+float targetY = 0;
+float targetZ = 0;
+
 void doDisplay(){
   display.display();
   unsigned long loopStart = millis();
-  encoderValue();
-  backButton = !digitalRead(PIN_BACK_BUTTON);
+  updateEncoderValue();
+  backButtonState = !digitalRead(PIN_BACK_BUTTON); // active low
   if(curMenuSelection == 1){ // main menu selection screen
     displayedNumber = 0;
     mainMenuSetup();
-    int menuSelection = menuSelect(counter);
-    if(buttonPress() == true){
+    int menuSelection = getMenuSelectionFromEncVal(scaledEncoderPosition);
+    if(encoderIsPressed() == true){
       curMenuSelection = menuSelection + 2;
       display.clearDisplay();
-      while(buttonPress() == true){
+      while(encoderIsPressed() == true){
       }
     }
   }
   else if(curMenuSelection == 2){
-    menuItem1();
+    showPayloadStatus();
   }
   else if(curMenuSelection == 3){
-    chooseNumber();
-    display.setCursor(0, 0);
-    display.print("Choose Number:");
-    display.setCursor(0, 8);
-    display.print(disNum, 5); // display number
-    display.setCursor(0, 16);
-    display.print("Number Chosen:");
-    display.setCursor(0, 24);
-    display.print(displayedNumber, 5); // display number
-    if(backButton == true){
-      curMenuSelection = 1;
-    }
+    selectNumberToVariable(&targetX, "Target X");
+  }
+  else if(curMenuSelection == 4){
+    selectNumberToVariable(&targetY, "Target Y");
+  }
+  else if (curMenuSelection == 5){
+    selectNumberToVariable(&targetZ, "Target Z");
   }
   Serial.print("Loop took ");
   Serial.println(millis() - loopStart);
