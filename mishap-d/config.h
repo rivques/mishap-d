@@ -35,7 +35,7 @@
 #define HSPI_MOSI   13
 #define HSPI_CLK   14
 
-#define PAYLOAD_BAY_SERVO 22
+#define PAYLOAD_BAY_SERVO 27
 #endif
 
 #ifdef TARGETING_GROUND

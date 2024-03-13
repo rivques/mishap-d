@@ -237,7 +237,7 @@ void displaySetup(){
   Serial.println("done setup");
 }
 
-void selectNumberToVariable(float* target, String name){
+void selectNumberToVariable(float* target, String name, bool* onchanged = NULL){
   chooseNumber();
   display.setCursor(0, 0);
   display.print("Choose ");
@@ -253,6 +253,9 @@ void selectNumberToVariable(float* target, String name){
     // copy the number to the target
     *target = displayedNumber;
     curMenuSelection = 1;
+    if(onchanged != NULL){
+      *onchanged = true;
+    }
   }
 }
 float targetX = 0;
@@ -279,13 +282,13 @@ void doDisplay(){
     showPayloadStatus();
   }
   else if(curMenuSelection == 3){
-    selectNumberToVariable(&targetX, "Target X");
+    selectNumberToVariable(&targetX, "Target X", &needSendTargetPos);
   }
   else if(curMenuSelection == 4){
-    selectNumberToVariable(&targetY, "Target Y");
+    selectNumberToVariable(&targetY, "Target Y", &needSendTargetPos);
   }
   else if (curMenuSelection == 5){
-    selectNumberToVariable(&targetZ, "Target Z");
+    selectNumberToVariable(&targetZ, "Target Z", &needSendTargetPos);
   }
   Serial.print("Loop took ");
   Serial.println(millis() - loopStart);
@@ -347,4 +350,11 @@ void groundloop(){
   // send a packet every second with the current time and the esp32's built-in hall effect sensor
   // use laserangledata for testing
   doLaserAngles();
+  if(needSendTargetPos){
+    TargetSettingsData tsd = TargetSettingsData{Vector3d{targetX, targetY, targetZ}};
+    uint8_t send_buf[RH_RF95_MAX_MESSAGE_LEN];
+    constructRawDataPacket(tsd, PacketType::TargetSettings, send_buf);
+    manager.sendto(send_buf, sizeof(send_buf), PAYLOAD_LORA_ADDR);
+    needSendTargetPos = false;
+  }
 }

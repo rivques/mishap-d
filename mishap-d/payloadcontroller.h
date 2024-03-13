@@ -5,6 +5,12 @@
 #include <SD.h>
 #include <RHReliableDatagram.h>
 #include <RH_RF95.h>
+#include <stdint.h>
+#include <Wire.h>
+#include "LIDARLite_v4LED.h" // this is a tweaked version of github.com/garmin/LIDARLite_Arduino_Library
+// with LEGACY_I2C essentially forced defined
+
+LIDARLite_v4LED myLidarLite;
 
 //  logging globals
 File logFile;
@@ -205,6 +211,21 @@ bool recieveAndHandlePacket(){
     return result;
 }
 
+void tryGetLidarDistance(){
+    // Check on busyFlag to indicate if device is idle
+    // (meaning = it finished the previously triggered measurement)
+    if (myLidarLite.getBusyFlag() == 0)
+    {
+        //Serial.println("distanceContinuous: not busy");
+        // Trigger the next range measurement
+        myLidarLite.takeRange();
+
+        // Read new distance data from device registers
+        uint16_t altitude_cm = myLidarLite.readDistance();
+        altitude = static_cast<float>(altitude_cm) / 100.0f;
+    }
+}
+
 void logStateToSd(){
     logFile = SD.open(filename, FILE_WRITE);
     logFile.seek(logFile.size());
@@ -235,10 +256,6 @@ void logStateToSd(){
     logFile.flush();
     logFile.close();
 
-}
-
-void readAltitudeSensor(){
-    altitude = 3;
 }
 
 void updateLocation(){
@@ -289,7 +306,7 @@ void payloadsetup()
 
 void payloadloop() {
     if(recieveAndHandlePacket()){
-        readAltitudeSensor();
+        tryGetLidarDistance();
         updateLocation();
         if(shouldDrop(impactLoc, targetLocation, isTrackGood, isArmed)){
             dropPayload();

@@ -49,6 +49,6 @@
 * Graham: Start working on LIDAR sensor
 * Jakob: Put together the bottom rotational section of the station 
 ### Week of 3/11
-* River: Refactor menu code
-* Graham:
-* Jakob:
+* River: Refactor menu code, continue work on LIDAR sensor
+* Graham: Start modelling payload
+* Jakob: 
