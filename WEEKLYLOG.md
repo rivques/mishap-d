@@ -51,4 +51,4 @@
 ### Week of 3/11
 * River: Refactor menu code, continue work on LIDAR sensor
 * Graham: Start modelling payload
-* Jakob: 
+* Jakob: Work on the wiring of both rotational sections especially having enough slack for a full rotation
