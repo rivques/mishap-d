@@ -52,3 +52,7 @@
 * River: Refactor menu code, continue work on LIDAR sensor
 * Graham: Start modelling payload
 * Jakob: Work on the wiring of both rotational sections especially having enough slack for a full rotation
+### Week of 3/18
+* River: Design payload circuit and begin soldering
+* Graham: Fit circuitry in payload
+* Jakob: idk you fill this out
