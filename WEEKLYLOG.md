@@ -55,4 +55,4 @@
 ### Week of 3/18
 * River: Design payload circuit and begin soldering
 * Graham: Fit circuitry in payload
-* Jakob: idk you fill this out
+* Jakob: Fix problems with the acrylic shaft and reprint connection between the rotation pipe and trigger grip and redo wires 
