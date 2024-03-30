@@ -56,3 +56,7 @@
 * River: Design payload circuit and begin soldering
 * Graham: Fit circuitry in payload
 * Jakob: Fix problems with the acrylic shaft and reprint connection between the rotation pipe and trigger grip and redo wires 
+### Week of 3/25
+* River: Finish soldering payload circuit and test
+* Graham: Continue modelling payload
+* Jakob: Continue assembly of ground station
