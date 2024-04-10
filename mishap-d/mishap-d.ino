@@ -10,7 +10,7 @@ void loop(){
 }
 #endif
 
-#ifdef TARGETING_PAYLOAD
+#if defined(TARGETING_PAYLOAD) || defined(TARGETING_PAYLOADONLY)
 #include "payloadcontroller.h"
 void setup(){
     payloadsetup();

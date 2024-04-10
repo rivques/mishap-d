@@ -2,14 +2,15 @@
 
 // for Reasons, this is how I'm developing two different programs with a shared library
 // uncomment the one we're doing
-#define TARGETING_GROUND
+//#define TARGETING_GROUND
 //#define TARGETING_PAYLOAD
+#define TARGETING_PAYLOADONLY
 
-#if defined(TARGETING_GROUND) && defined(TARGETING_PAYLOAD)
-#error Both TARGETING_GROUND and TARGETING_PAYLOAD are defined. Pick one please.
+#if (defined(TARGETING_GROUND) && defined(TARGETING_PAYLOAD)) || (defined(TARGETING_GROUND) && defined(TARGETING_PAYLOADONLY)) || (defined(TARGETING_PAYLOAD) && defined(TARGETING_PAYLOADONLY))
+#error More than one target is defined. Pick one please.
 #endif
-#if !defined(TARGETING_GROUND) && !defined(TARGETING_PAYLOAD)
-#error Neither TARGETING_GROUND nor TARGETING_PAYLOAD are defined. Pick one please.
+#if !defined(TARGETING_GROUND) && !defined(TARGETING_PAYLOAD) && !defined(TARGETING_PAYLOADONLY)
+#error No targets are defined. Pick one please.
 #endif
 
 // configuration of globals
@@ -27,7 +28,7 @@
 #define RFM95_RST   16
 #define RF95_FREQ 915.0
 
-#ifdef TARGETING_PAYLOAD
+#if defined(TARGETING_PAYLOAD) || defined(TARGETING_PAYLOADONLY)
 
 // SD card pins
 #define SD_CS 15
@@ -35,7 +36,11 @@
 #define HSPI_MOSI   13
 #define HSPI_CLK   14
 
-#define PAYLOAD_BAY_SERVO 27
+#define PAYLOAD_BAY_SERVO_PIN 27
+#define PAYLOAD_BAY_SERVO_OPEN 0
+#define PAYLOAD_BAY_SERVO_CLOSED 180
+
+#define DEBUG_LED_PIN LED_BUILTIN
 #endif
 
 #ifdef TARGETING_GROUND

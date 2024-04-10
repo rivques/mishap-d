@@ -2,6 +2,7 @@
 #include "mishapprotocol.h"
 #include "config.h"
 #include <SPI.h>
+#include <Servo.h>
 #include <SD.h>
 #include <RHReliableDatagram.h>
 #include <RH_RF95.h>
@@ -37,6 +38,83 @@ bool didDrop;
 unsigned long lastPacketReceivedTime;
 unsigned long lastLocationUpdateTime;
 
+Servo payloadBayServo;
+
+
+void ledDebugProgramStart(){
+    #ifdef TARGETING_PAYLOADONLY
+    // fade in and out 
+    for(int i = 0; i < 256; i++){
+        analogWrite(DEBUG_LED_PIN, i);
+        delay(2);
+    }
+    for (int i = 255; i >= 0; i--){
+        analogWrite(DEBUG_LED_PIN, i);
+        delay(2);
+    }
+    #endif
+    #ifdef TARGETING_PAYLOAD
+    // 3 quick fades
+    for(int j = 0; j < 3; j++){
+        for(int i = 0; i < 256; i++){
+            analogWrite(DEBUG_LED_PIN, i);
+            delay(1);
+        }
+        for (int i = 255; i >= 0; i--){
+            analogWrite(DEBUG_LED_PIN, i);
+            delay(1);
+        }
+    }
+    #endif
+}
+
+void ledDebugSetupComplete(){
+    // 2 quick fades
+    for(int j = 0; j < 2; j++){
+        for(int i = 0; i < 256; i++){
+            analogWrite(DEBUG_LED_PIN, i);
+            delay(1);
+        }
+        for (int i = 255; i >= 0; i--){
+            analogWrite(DEBUG_LED_PIN, i);
+            delay(1);
+        }
+    }
+}
+
+void ledDebugMissionNumber(int missionNumber){
+    Serial.println("LED Debugging mission number " + String(missionNumber));
+    for(int i = 0; i < missionNumber; i++){
+        analogWrite(DEBUG_LED_PIN, 255);
+        delay(100);
+        analogWrite(DEBUG_LED_PIN, 0);
+        delay(100);
+    }
+}
+
+void ledDebugLogError(){
+    for(int i = 0; i < 3; i++){
+        analogWrite(DEBUG_LED_PIN, 255);
+        delay(500);
+        analogWrite(DEBUG_LED_PIN, 0);
+        delay(500);
+    }
+}
+
+void ledDebugDidLog(){
+    // 1 quick blink (skipped because sd act led works)
+    // analogWrite(DEBUG_LED_PIN, 255);
+    // delay(25);
+    // analogWrite(DEBUG_LED_PIN, 0);
+}
+
+void ledDebugProgramEnded(){
+    // infinite long fades
+    for(int i = 0; i < 256; i++){
+        analogWrite(DEBUG_LED_PIN, i);
+        delay(2);
+    }
+}
 
 bool handlePacket(MishapProtocolPacket packet){
     // returns true if we need to update position
@@ -87,6 +165,8 @@ void initSdLogging()
     if (!SD.begin(SD_CS, *hspi))
     {
         Serial.println("SD initialization failed!");
+        Serial.flush();
+        ledDebugLogError();
         while (1);
     }
 
@@ -119,10 +199,12 @@ void initSdLogging()
     filename = "/mission_" + missionNoString + ".csv";
     Serial.print("Mission number is ");
     Serial.println(missionNoString);
+    ledDebugMissionNumber(missionNumber);
     logFile = SD.open(filename, FILE_WRITE, true);
     if (!logFile)
     {
         Serial.println("Failed to open log file");
+        ledDebugLogError();
         while (1);
     }
     Serial.print("Opened log file ");
@@ -211,9 +293,21 @@ bool recieveAndHandlePacket(){
     return result;
 }
 
+void setupLidar(){
+    Serial.begin(115200);
+
+    // Initialize Arduino I2C (for communication to LidarLite)
+    Wire.begin();
+    Wire.setClock(400000UL); // Set I2C frequency to 400kHz (for Arduino Due)
+    digitalWrite(SCL, LOW);
+    digitalWrite(SDA, LOW);
+    myLidarLite.configure(0);
+}
+
 void tryGetLidarDistance(){
     // Check on busyFlag to indicate if device is idle
     // (meaning = it finished the previously triggered measurement)
+    //Serial.println("trying for new altitude...");
     if (myLidarLite.getBusyFlag() == 0)
     {
         //Serial.println("distanceContinuous: not busy");
@@ -223,10 +317,24 @@ void tryGetLidarDistance(){
         // Read new distance data from device registers
         uint16_t altitude_cm = myLidarLite.readDistance();
         altitude = static_cast<float>(altitude_cm) / 100.0f;
+        Serial.print("New altitude: ");
+        Serial.println(altitude);
     }
 }
 
+void saveAndEndIfNeeded(){
+    if(digitalRead(0) == LOW){
+        Serial.println("Stopping");
+        SD.end();
+        while(1){
+            ledDebugProgramEnded();
+        }
+    }
+}
+
+#ifdef TARGETING_PAYLOAD
 void logStateToSd(){
+    ledDebugDidLog();
     logFile = SD.open(filename, FILE_WRITE);
     logFile.seek(logFile.size());
     logFile.print(millis());
@@ -257,6 +365,21 @@ void logStateToSd(){
     logFile.close();
 
 }
+#endif
+
+#ifdef TARGETING_PAYLOADONLY // without radio we only have altitude
+void logStateToSd(){
+    ledDebugDidLog();
+    logFile = SD.open(filename, FILE_WRITE);
+    logFile.seek(logFile.size());
+    logFile.print(millis());
+    logFile.print(",");
+    logFile.print(altitude);
+    logFile.print(",");
+    logFile.print(didDrop);
+    logFile.println();
+}
+#endif
 
 void updateLocation(){
     Vector3d lastLocation = currentLocation;
@@ -278,7 +401,8 @@ void updateLocation(){
 }
 
 void dropPayload(){
-
+    payloadBayServo.write(PAYLOAD_BAY_SERVO_OPEN);
+    didDrop = true;
 }
 
 void sendTelemetry(){
@@ -294,16 +418,34 @@ void sendTelemetry(){
     manager.sendto(send_buf, sizeof(send_buf), GROUND_LORA_ADDR);
 }
 
-void payloadsetup()
-{
-    Serial.begin(115200);
-    Serial.println("Payload controller starting up");
-    
-    initRadio(driver, manager);
 
+
+void payloadsetup()
+{   
+    pinMode(DEBUG_LED_PIN, OUTPUT);
+    pinMode(0, INPUT_PULLUP);
+    ledDebugProgramStart();
+    Serial.begin(115200);
+    #ifdef TARGETING_PAYLOAD
+        Serial.println("Payload controller starting up with radio");
+    #endif
+    #ifdef TARGETING_PAYLOADONLY
+        Serial.println("Payload controller starting up without radio");
+    #endif
+    payloadBayServo.attach(PAYLOAD_BAY_SERVO_PIN);
+    payloadBayServo.write(PAYLOAD_BAY_SERVO_CLOSED);
+    #ifdef TARGETING_PAYLOAD
+        initRadio(driver, manager);
+    #endif
+    Serial.println("Initializing Lidar...");
+    setupLidar();
+    Serial.println("Initializing logging...");
     initSdLogging();
+    ledDebugSetupComplete();
+    Serial.println("Payload controller setup complete");
 }
 
+#ifdef TARGETING_PAYLOAD
 void payloadloop() {
     if(recieveAndHandlePacket()){
         tryGetLidarDistance();
@@ -324,3 +466,23 @@ void payloadloop() {
         }
     }
 }
+#endif
+
+#ifdef TARGETING_PAYLOADONLY
+void payloadloop(){
+    tryGetLidarDistance();
+    if(altitude > 2){
+        dropPayload();
+    }
+    logStateToSd();
+    if(Serial.available()){
+        Serial.println("Serial input detected");
+        String input = Serial.readString();
+        if(input.startsWith("stop")){
+            Serial.println("Stopping");
+            SD.end();
+            while(1);
+        }
+    }
+}
+#endif
