@@ -84,7 +84,24 @@ void ledDebugSetupComplete(){
 
 void ledDebugMissionNumber(int missionNumber){
     Serial.println("LED Debugging mission number " + String(missionNumber));
-    for(int i = 0; i < missionNumber; i++){
+    // blink number of tens quickly, then quad quick fade, then blink number of ones quickly
+    for(int i = 0; i < missionNumber/10; i++){
+        analogWrite(DEBUG_LED_PIN, 255);
+        delay(100);
+        analogWrite(DEBUG_LED_PIN, 0);
+        delay(100);
+    }
+    for(int j = 0; j < 4; j++){
+        for(int i = 0; i < 256; i++){
+            analogWrite(DEBUG_LED_PIN, i);
+            delay(1);
+        }
+        for (int i = 255; i >= 0; i--){
+            analogWrite(DEBUG_LED_PIN, i);
+            delay(1);
+        }
+    }
+    for(int i = 0; i < missionNumber%10; i++){
         analogWrite(DEBUG_LED_PIN, 255);
         delay(100);
         analogWrite(DEBUG_LED_PIN, 0);
@@ -465,6 +482,7 @@ void payloadloop() {
             while(1);
         }
     }
+    saveAndEndIfNeeded();
 }
 #endif
 
@@ -484,5 +502,6 @@ void payloadloop(){
             while(1);
         }
     }
+    saveAndEndIfNeeded();
 }
 #endif
