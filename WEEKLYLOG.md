@@ -60,3 +60,7 @@
 * River: Finish soldering payload circuit and test
 * Graham: Continue modelling payload
 * Jakob: Continue assembly of ground station
+### Week of 4/8
+* River: Troubleshoot payload circuit and integrate
+* Graham: Build and integrate payload
+* Jakob: Wire ground station
