@@ -489,7 +489,7 @@ void payloadloop() {
 #ifdef TARGETING_PAYLOADONLY
 void payloadloop(){
     tryGetLidarDistance();
-    if(altitude > 2){
+    if(altitude > 10){
         dropPayload();
     }
     logStateToSd();
