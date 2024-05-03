@@ -83,12 +83,18 @@ void ledDebugSetupComplete(){
 }
 
 void ledDebugMissionNumber(int missionNumber){
-    Serial.println("LED Debugging mission number " + String(missionNumber));
+    delay(2000);
+    pinMode(DEBUG_LED_PIN, OUTPUT);
+    Serial.print("LED Debugging mission number ");
+    Serial.println(missionNumber);
+    
     // blink number of tens quickly, then quad quick fade, then blink number of ones quickly
     for(int i = 0; i < missionNumber/10; i++){
-        analogWrite(DEBUG_LED_PIN, 255);
-        delay(100);
-        analogWrite(DEBUG_LED_PIN, 0);
+        //analogWrite(DEBUG_LED_PIN, 200);
+        digitalWrite(DEBUG_LED_PIN, HIGH);
+        delay(200);
+        //analogWrite(DEBUG_LED_PIN, 10);
+        digitalWrite(DEBUG_LED_PIN, LOW);
         delay(100);
     }
     for(int j = 0; j < 4; j++){
@@ -105,7 +111,7 @@ void ledDebugMissionNumber(int missionNumber){
         analogWrite(DEBUG_LED_PIN, 255);
         delay(100);
         analogWrite(DEBUG_LED_PIN, 0);
-        delay(100);
+        delay(200);
     }
 }
 
@@ -216,7 +222,11 @@ void initSdLogging()
     filename = "/mission_" + missionNoString + ".csv";
     Serial.print("Mission number is ");
     Serial.println(missionNoString);
+    Serial.println("a");
+    Serial.print("LED Debugging mission number ");
+    Serial.println(missionNumber);
     ledDebugMissionNumber(missionNumber);
+    
     logFile = SD.open(filename, FILE_WRITE, true);
     if (!logFile)
     {
@@ -489,7 +499,7 @@ void payloadloop() {
 #ifdef TARGETING_PAYLOADONLY
 void payloadloop(){
     tryGetLidarDistance();
-    if(altitude > 10){
+    if(altitude > PAYLOADONLY_DROP_ALTITUDE){
         dropPayload();
     }
     logStateToSd();
