@@ -4,14 +4,16 @@ import time
 import board
 import busio
 import digitalio
+import os
+
+fileprefix = "/logs/mission_"
+fileext = ".csv"
+filecounter = len(os.listdir("/logs")) + 1
+filename =f"{fileprefix}{filecounter:03}{fileext}"
+print(f"Logging to {filename}")
 
 # Set up the uart
 uart = busio.UART(board.GP8, board.GP9, baudrate=115200)
-
-# Set up the write pin
-write_pin = digitalio.DigitalInOut(board.GP7)
-write_pin.direction = digitalio.Direction.INPUT
-write_pin.pull = digitalio.Pull.UP
 
 # Set up the LED
 led = digitalio.DigitalInOut(board.LED)
@@ -22,7 +24,10 @@ while True:
     # then, on the falling edge of the write pin, write the string to a file
     data = ""
     while uart.in_waiting:
-        data += str(uart.read(1), 'utf-8')
-    if not write_pin.value:
-        with open("/log.txt", "a") as f:
-            f.write(data)
+        char = str(uart.read(1), 'utf-8')
+        data += char
+        if char == '/n':
+            led.value = True
+            with open(filename, "a") as f:
+                f.write(data)
+            led.value = False

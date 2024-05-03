@@ -13,11 +13,6 @@
 
 LIDARLite_v4LED myLidarLite;
 
-//  logging globals
-File logFile;
-String filename;
-SPIClass* hspi;
-
 // radio globals
 RH_RF95 driver(RFM95_CS, RFM95_INT);
 RHReliableDatagram manager(driver, PAYLOAD_LORA_ADDR);
@@ -181,63 +176,9 @@ bool handlePacket(MishapProtocolPacket packet){
 
 void initSdLogging()
 {
-    // use HSPI for SD card
-    hspi = new SPIClass(HSPI);
-    hspi->begin(HSPI_CLK, HSPI_MISO, HSPI_MOSI, SD_CS);
-    pinMode(SD_CS, OUTPUT);
-    if (!SD.begin(SD_CS, *hspi))
-    {
-        Serial.println("SD initialization failed!");
-        Serial.flush();
-        ledDebugLogError();
-        while (1);
-    }
+    Serial2.begin(115200, SERIAL_8N1, -1, 17);
 
-    // figure out which mission number we are on
-    // filename format is mission_XXX.csv
-    int missionNumber = 0;
-    File root = SD.open("/");
-    File entry = root.openNextFile();
-    while (entry)
-    {
-        String filename = entry.name();
-        if (filename.startsWith("mission_"))
-        {
-            int number = filename.substring(8, 11).toInt();
-            if (number > missionNumber)
-            {
-                missionNumber = number;
-            }
-        }
-        entry = root.openNextFile();
-    }
-    root.close();
-    missionNumber++; // increment to the next mission number
-    String missionNoString = String(missionNumber);
-    // pad with zeros
-    while (missionNoString.length() < 3)
-    {
-        missionNoString = "0" + missionNoString;
-    }
-    filename = "/mission_" + missionNoString + ".csv";
-    Serial.print("Mission number is ");
-    Serial.println(missionNoString);
-    Serial.println("a");
-    Serial.print("LED Debugging mission number ");
-    Serial.println(missionNumber);
-    ledDebugMissionNumber(missionNumber);
-    
-    logFile = SD.open(filename, FILE_WRITE, true);
-    if (!logFile)
-    {
-        Serial.println("Failed to open log file");
-        ledDebugLogError();
-        while (1);
-    }
-    Serial.print("Opened log file ");
-    Serial.println(filename);
-    logFile.println("Time,Payload Location X,Payload Location Y,Payload Location Z,Payload Velocity X,Payload Velocity Y,Payload Velocity Z,Target Location X,Target Location Y,Target Location Z,Impact Location X,Impact Location Y,Impact Location Z,Is Track Good,Is Armed,Did Drop,Theta,Phi,Last Packet Received Time,Time Since Last Location Update");
-    logFile.close();
+    Serial2.println("Time,Payload Location X,Payload Location Y,Payload Location Z,Payload Velocity X,Payload Velocity Y,Payload Velocity Z,Target Location X,Target Location Y,Target Location Z,Impact Location X,Impact Location Y,Impact Location Z,Is Track Good,Is Armed,Did Drop,Theta,Phi,Last Packet Received Time,Time Since Last Location Update");
 }
 
 float getTimeOfFlight(Vector3d payloadLoc, Vector3d payloadVel, Vector3d targetLoc) {
@@ -362,34 +303,31 @@ void saveAndEndIfNeeded(){
 #ifdef TARGETING_PAYLOAD
 void logStateToSd(){
     ledDebugDidLog();
-    logFile = SD.open(filename, FILE_WRITE);
-    logFile.seek(logFile.size());
-    logFile.print(millis());
-    logFile.print(",");
-    logFile.print(currentLocation.toString());
-    logFile.print(",");
-    logFile.print(currentVelocity.toString());
-    logFile.print(",");
-    logFile.print(targetLocation.toString());
-    logFile.print(",");
-    logFile.print(impactLoc.toString());
-    logFile.print(",");
-    logFile.print(isTrackGood);
-    logFile.print(",");
-    logFile.print(isArmed);
-    logFile.print(",");
-    logFile.print(didDrop);
-    logFile.print(",");
-    logFile.print(theta);
-    logFile.print(",");
-    logFile.print(phi);
-    logFile.print(",");
-    logFile.print(lastPacketReceivedTime);
-    logFile.print(",");
-    logFile.print(millis() - lastLocationUpdateTime);
-    logFile.println();
-    logFile.flush();
-    logFile.close();
+    Serial2.print(millis());
+    Serial2.print(",");
+    Serial2.print(currentLocation.toString());
+    Serial2.print(",");
+    Serial2.print(currentVelocity.toString());
+    Serial2.print(",");
+    Serial2.print(targetLocation.toString());
+    Serial2.print(",");
+    Serial2.print(impactLoc.toString());
+    Serial2.print(",");
+    Serial2.print(isTrackGood);
+    Serial2.print(",");
+    Serial2.print(isArmed);
+    Serial2.print(",");
+    Serial2.print(didDrop);
+    Serial2.print(",");
+    Serial2.print(theta);
+    Serial2.print(",");
+    Serial2.print(phi);
+    Serial2.print(",");
+    Serial2.print(lastPacketReceivedTime);
+    Serial2.print(",");
+    Serial2.print(millis() - lastLocationUpdateTime);
+    Serial2.println();
+    Serial2.flush();
 
 }
 #endif
@@ -397,14 +335,12 @@ void logStateToSd(){
 #ifdef TARGETING_PAYLOADONLY // without radio we only have altitude
 void logStateToSd(){
     ledDebugDidLog();
-    logFile = SD.open(filename, FILE_WRITE);
-    logFile.seek(logFile.size());
-    logFile.print(millis());
-    logFile.print(",");
-    logFile.print(altitude);
-    logFile.print(",");
-    logFile.print(didDrop);
-    logFile.println();
+    Serial2.print(millis());
+    Serial2.print(",");
+    Serial2.print(altitude);
+    Serial2.print(",");
+    Serial2.print(didDrop);
+    Serial2.println();
 }
 #endif
 
