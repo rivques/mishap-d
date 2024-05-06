@@ -75,4 +75,4 @@
 ### Week of 4/29
 * River: Pivot to logging on Pico
 * 
-* 
+* Jakob: Finished Wiring and started sights
