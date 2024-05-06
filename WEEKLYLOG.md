@@ -72,3 +72,7 @@
 * River:
 * Graham:
 * Jakob: Start Breadboard installation 
+### Week of 4/29
+* River: Pivot to logging on Pico
+* 
+* 
