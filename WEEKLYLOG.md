@@ -65,11 +65,11 @@
 * Graham: Build and integrate payload
 * Jakob: Wire ground station
 ### Week of 4/15
-* River:
+* River: Fix debug LED being on bad pin
 * Graham:
 * Jakob:Finish wire pathing for ground station
 ### Week of 4/22
-* River:
+* River: Fight errors with SD card
 * Graham:
 * Jakob: Start Breadboard installation 
 ### Week of 4/29
