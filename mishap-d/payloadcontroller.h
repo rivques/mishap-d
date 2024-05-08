@@ -8,10 +8,12 @@
 #include <RH_RF95.h>
 #include <stdint.h>
 #include <Wire.h>
-#include "LIDARLite_v4LED.h" // this is a tweaked version of github.com/garmin/LIDARLite_Arduino_Library
+//#include "LIDARLite_v4LED.h" // this is a tweaked version of github.com/garmin/LIDARLite_Arduino_Library
 // with LEGACY_I2C essentially forced defined
+#include <Adafruit_MPL3115A2.h>
+//LIDARLite_v4LED myLidarLite;
 
-LIDARLite_v4LED myLidarLite;
+Adafruit_MPL3115A2 baro;
 
 // radio globals
 RH_RF95 driver(RFM95_CS, RFM95_INT);
@@ -32,6 +34,8 @@ bool isArmed;
 bool didDrop;
 unsigned long lastPacketReceivedTime;
 unsigned long lastLocationUpdateTime;
+
+float groundAltitude = 0;
 
 Servo payloadBayServo;
 
@@ -120,10 +124,11 @@ void ledDebugLogError(){
 }
 
 void ledDebugDidLog(){
-    // 1 quick blink (skipped because sd act led works)
-    // analogWrite(DEBUG_LED_PIN, 255);
-    // delay(25);
-    // analogWrite(DEBUG_LED_PIN, 0);
+    //1 quick blink (skipped because sd act led works)
+    analogWrite(DEBUG_LED_PIN, 255);
+    delay(25);
+    analogWrite(DEBUG_LED_PIN, 0);
+
 }
 
 void ledDebugProgramEnded(){
@@ -264,30 +269,38 @@ bool recieveAndHandlePacket(){
 void setupLidar(){
     Serial.begin(115200);
 
-    // Initialize Arduino I2C (for communication to LidarLite)
-    Wire.begin();
-    Wire.setClock(400000UL); // Set I2C frequency to 400kHz (for Arduino Due)
-    digitalWrite(SCL, LOW);
-    digitalWrite(SDA, LOW);
-    myLidarLite.configure(0);
+    if (!baro.begin()) {
+    Serial.println("Could not find sensor. Check wiring.");
+    while(1);
+  }
+
+  // use to set sea level pressure for current location
+  // this is needed for accurate altitude measurement
+  // STD SLP = 1013.26 hPa
+  baro.setSeaPressure(1013.26);
+  delay(2000);
+  groundAltitude = baro.getAltitude();
 }
 
 void tryGetLidarDistance(){
     // Check on busyFlag to indicate if device is idle
     // (meaning = it finished the previously triggered measurement)
     //Serial.println("trying for new altitude...");
-    if (myLidarLite.getBusyFlag() == 0)
-    {
-        //Serial.println("distanceContinuous: not busy");
-        // Trigger the next range measurement
-        myLidarLite.takeRange();
+    // if (myLidarLite.getBusyFlag() == 0)
+    // {
+    //     //Serial.println("distanceContinuous: not busy");
+    //     // Trigger the next range measurement
+    //     myLidarLite.takeRange();
 
-        // Read new distance data from device registers
-        uint16_t altitude_cm = myLidarLite.readDistance();
-        altitude = static_cast<float>(altitude_cm) / 100.0f;
-        Serial.print("New altitude: ");
-        Serial.println(altitude);
-    }
+    //     // Read new distance data from device registers
+    //     uint16_t altitude_cm = myLidarLite.readDistance();
+    //     altitude = static_cast<float>(altitude_cm) / 100.0f;
+    //     Serial.print("New altitude: ");
+    //     Serial.println(altitude);
+    // }
+    altitude = baro.getAltitude() - groundAltitude;
+    Serial.print("New altitude: ");
+    Serial.println(altitude);
 }
 
 void saveAndEndIfNeeded(){
