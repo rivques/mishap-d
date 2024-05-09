@@ -1,3 +1,5 @@
+this should be a hinge
+
 ```stl
   solid Mesh
     facet normal 0 -0.0112121 -0.999937
@@ -57513,5 +57515,4 @@
       endloop
     endfacet
   endsolid Mesh
-
 ```
