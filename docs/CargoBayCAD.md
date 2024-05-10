@@ -22,9 +22,16 @@ The problems with this box:
 * There was no switch hole
 * You couldnt access the USB port on the microprocessor without taking it out.
 * The hinges were too tight on the bolt that held them in place, therefore they would be unable to open due to just gravity.
-* The big hole on the side of the back wall is designed to be an opening for the sd card reader and writer and it was mismeasured
+* The big hole on the side of the back wall is designed to be an opening for the SD card reader and writer and it was mismeasured
 * The holes that were intended to screw into the hinges interfered with the box's brackets.
 </details>
 
 ### Current box:
-Unfortunatly the stl file is too big to fit into a github repo so this will be spread out across a couple
+* The laser-cut box is a two-section container with a center wall to prevent interference between the cargo and electronics.
+* The electronics bay is comprised of a [] a battery pack and a raspberry pico.
+* The wholes on the box are size #4-40 for the labs screws and #1-72 for the small ones
+* The large whole on the electronics bay door is the lock. The point of the design is to be able to wrap a wire into the electronics bay side wall and twist it shut.
+  <details>
+  <summary>Photo Example</summary>
+    ![Wire tie photo](https://github.com/rivques/mishap-d/assets/91289762/6ee7e501-42f9-4481-b5fa-4350b2900304)
+  </details>
