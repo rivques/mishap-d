@@ -31,7 +31,7 @@ The problems with this box:
 * The electronics bay is comprised of a [] a battery pack and a raspberry pico.
 * The wholes on the box are size #4-40 for the labs screws and #1-72 for the small ones
 * The large whole on the electronics bay door is the lock. The point of the design is to be able to wrap a wire into the electronics bay side wall and twist it shut.
-  <details>
-  <summary>Photo Example</summary>
+<details>
+<summary>Photo Example</summary>
 ![Wire tie photo](https://github.com/rivques/mishap-d/assets/91289762/6ee7e501-42f9-4481-b5fa-4350b2900304)
-  </details>
+</details>
