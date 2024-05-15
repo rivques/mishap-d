@@ -16,7 +16,27 @@
 <summary>Trials and errors of the box </summary>
 
 ### The box went through two renditions plus a couple renovations.
-[Originally the box looked like this:]()
+[Originally the box looked like this:](https://github.com/rivques/mishap-d/blob/main/docs/STLFILES/boxtry1-try2.md)
+
+### Box Label and Purposes:
+ <div class="image-container">    
+    <a href="https://github.com/rivques/mishap-d/edit/main/docs/CargoBayCAD.md">    
+      <img src="https://github.com/rivques/mishap-d/assets/91289762/71ebeea5-5f6d-4a5d-a75d-fd87f49da171" alt="GitHub" width="580" height="500">    
+    </a>
+
+  </div>  
+  
+| Sign  |  Object and Intended Purpose | Photo |
+| ------------- | ------------- | ---- |
+| Circle  | This is the lidar, it measures the height of the box. The orientation is down, towards the ground  | <img src="https://github.com/rivques/mishap-d/assets/91289762/0c6c89df-119a-4e4c-913e-5d7756eb4ee2c" alt="lidar and mount" width="300" height="300"> |
+| Triangle  | Electronics bay door. The locks on the side are intended to lock it in place. It can't fall into the box or out of the box, therefore, stuck.  | <img src="https://github.com/rivques/mishap-d/assets/91289762/9e82a09a-c1d4-48b8-99a6-dc7143d2aebc" alt="electronics bay door" width="300" height="300"> |
+| Pentagon | This is the bracket that Mr. Miller made, it is used to lock the electronics bay door and  very helpful for full assemblies because it locks a nut inside its jaws and prevents it from falling out. | <img src="https://github.com/rivques/mishap-d/assets/91289762/4f1fe433-bf0c-4b72-9d92-66867a009ef3" alt="Bracket Locking electronics bay door" width="300" height="300"> |
+
+
+
+
+
+
 The problems with this box:
 * The door on the side is intened for access to the wires. When put together there wasn't enough space to do what it was designed for: Accessing the wires with the ability to change them around.
 * There was no switch hole
