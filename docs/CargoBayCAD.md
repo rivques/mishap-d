@@ -28,10 +28,10 @@
   
 | Sign  |  Object and Intended Purpose | Photo |
 | ------------- | ------------- | ---- |
-| Circle  | This is the lidar, it measures the height of the box. The orientation is down, towards the ground  | <img src="https://github.com/rivques/mishap-d/assets/91289762/0c6c89df-119a-4e4c-913e-5d7756eb4ee2c" alt="lidar and mount" width="500" height="400"> |
-| Triangle  | Electronics bay door. The locks on the side are intended to lock it in place. It can't fall into the box or out of the box, therefore, stuck.  | <img src="https://github.com/rivques/mishap-d/assets/91289762/9e82a09a-c1d4-48b8-99a6-dc7143d2aebc" alt="electronics bay door" width="500" height="400"> |
-| Pentagon | This is the bracket that Mr. Miller made, it is used to lock the electronics bay door and  very helpful for full assemblies because it locks a nut inside its jaws and prevents it from falling out. | <img src="https://github.com/rivques/mishap-d/assets/91289762/4f1fe433-bf0c-4b72-9d92-66867a009ef3" alt="Bracket Locking electronics bay door" width="500" height="400"> |
-
+| Circle  | This is the lidar, it measures the height of the box. The orientation is down, towards the ground  | ![lidar mount](https://github.com/rivques/mishap-d/assets/91289762/b8dd66a4-f906-4cd0-a5d5-ab57b53b2111) |
+| Triangle  | Electronics bay door. The locks on the side are intended to lock it in place. It can't fall into the box or out of the box, therefore, stuck.  | ![SIDE ELECTRONICS DOOR](https://github.com/rivques/mishap-d/assets/91289762/6bdf5b7f-37a0-4f17-b8a0-940c22bf9030) |
+| Pentagon | This is the bracket that Mr. Miller made, it is used to lock the electronics bay door and  very helpful for full assemblies because it locks a nut inside its jaws and prevents it from falling out. | ![bracket locking electronics bay door](https://github.com/rivques/mishap-d/assets/91289762/478cef75-d241-4ef0-9613-791eaa76ad99) |
+| Arrow | This is the release lock. It is a lock that is connected to a servo and when the servo moves the lock is released and the door can open and drop the payload. | ![servo lock](https://github.com/rivques/mishap-d/assets/91289762/84286759-9981-40ea-a782-b1483bb3ff6f) |
 
 
 
