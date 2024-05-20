@@ -63,3 +63,24 @@ The problems with this box:
     </a>
   </div>  
   </details>
+
+  ## Landing Gear
+  
+* The Landing gear only went through one rendition. To make them I used a plane and connected a tube to the end of a corner cap and used that same plane to connect to the entry slot.
+
+[What it looks like](https://github.com/rivques/mishap-d/blob/main/docs/STLFILES/endcap.md)
+
+[The entry slot](https://github.com/rivques/mishap-d/blob/main/docs/STLFILES/receiver.md)
+
+* All together the landing gear doesn't fit a stick perfectally squared and horizontal, this is intentional. Intentional because of the tension forces provided giving a structural bonus of strength and tensile forces going everywhere. This does, however, cause the landing gear to explode if the drone falls out of the sky.
+<details><summary>Imperfect fit</summary> 
+ 
+![landing gear imperfections](https://github.com/rivques/mishap-d/assets/91289762/d265ea25-eabb-4198-a236-f222ed34d6b3)
+</details>
+<details><summary>Bye Bye Landing Gear!</summary> 
+ 
+![landing gear bomb num.1](https://github.com/rivques/mishap-d/assets/91289762/ffcf9fe4-5b3d-42f9-80c6-c5cbfefe46e5)
+
+![landing gear bomb num.2](https://github.com/rivques/mishap-d/assets/91289762/5a3c16c8-40b6-4bbd-a4d1-9a455e789179)
+</details>
+
