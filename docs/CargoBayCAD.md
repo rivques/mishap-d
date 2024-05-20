@@ -16,7 +16,27 @@
 <summary>Trials and errors of the box </summary>
 
 ### The box went through two renditions plus a couple renovations.
-[Originally the box looked like this:]()
+[Originally the box looked like this:](https://github.com/rivques/mishap-d/blob/main/docs/STLFILES/boxtry1-try2.md)
+
+### Box Label and Purposes:
+ <div class="image-container">    
+    <a href="https://github.com/rivques/mishap-d/edit/main/docs/CargoBayCAD.md">    
+      <img src="https://github.com/rivques/mishap-d/assets/91289762/71ebeea5-5f6d-4a5d-a75d-fd87f49da171" alt="GitHub" width="580" height="500">    
+    </a>
+
+  </div>  
+  
+| Sign  |  Object and Intended Purpose | Photo |
+| ------------- | ------------- | ---- |
+| Circle  | This is the lidar, it measures the height of the box. The orientation is down, towards the ground  | ![lidar mount](https://github.com/rivques/mishap-d/assets/91289762/b8dd66a4-f906-4cd0-a5d5-ab57b53b2111) |
+| Triangle  | Electronics bay door. The locks on the side are intended to lock it in place. It can't fall into the box or out of the box, therefore, stuck.  | ![SIDE ELECTRONICS DOOR](https://github.com/rivques/mishap-d/assets/91289762/6bdf5b7f-37a0-4f17-b8a0-940c22bf9030) |
+| Pentagon | This is the bracket that Mr. Miller made, it is used to lock the electronics bay door and  very helpful for full assemblies because it locks a nut inside its jaws and prevents it from falling out. | ![bracket locking electronics bay door](https://github.com/rivques/mishap-d/assets/91289762/478cef75-d241-4ef0-9613-791eaa76ad99) |
+| Arrow | This is the release lock. It is a lock that is connected to a servo and when the servo moves the lock is released and the door can open and drop the payload. | ![servo lock](https://github.com/rivques/mishap-d/assets/91289762/84286759-9981-40ea-a782-b1483bb3ff6f) |
+
+
+
+
+
 The problems with this box:
 * The door on the side is intened for access to the wires. When put together there wasn't enough space to do what it was designed for: Accessing the wires with the ability to change them around.
 * There was no switch hole
