@@ -38,15 +38,19 @@
 
 
 The problems with this box:
-* The door on the side is intened for access to the wires. When put together there wasn't enough space to do what it was designed for: Accessing the wires with the ability to change them around.
+* The door on the side is intended for access to the wires. When put together there wasn't enough space to do what it was designed for: Accessing the wires with the ability to change them around.
 * There was no switch hole
-* You couldnt access the USB port on the microprocessor without taking it out.
+* You couldn't access the USB port on the microprocessor without taking it out.
 * The hinges were too tight on the bolt that held them in place, therefore they would be unable to open due to just gravity.
 * The big hole on the side of the back wall is designed to be an opening for the SD card reader and writer and it was mismeasured
 * The holes that were intended to screw into the hinges interfered with the box's brackets.
+  
 </details>
 
 ### Current box:
+
+![full box exploded view](https://github.com/rivques/mishap-d/assets/91289762/5324bdc1-6648-4a94-9335-00b292a45180)
+
 * The laser-cut box is a two-section container with a center wall to prevent interference between the cargo and electronics.
 * The electronics bay is comprised of a [] a battery pack and a raspberry pico.
 * The wholes on the box are size #4-40 for the labs screws and #1-72 for the small ones
