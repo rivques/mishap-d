@@ -44,7 +44,7 @@
 #endif
 
 #ifdef TARGETING_PAYLOADONLY
-#define PAYLOADONLY_DROP_ALTITUDE 100 // meters
+#define PAYLOADONLY_DROP_ALTITUDE 50 // meters
 #endif
 
 #ifdef TARGETING_GROUND
