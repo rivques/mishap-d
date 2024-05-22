@@ -93,6 +93,6 @@ The problems with this box:
 | Catagory | 90 Degree Hinges | 180 Degree Hinges |
 | -------- | ---------------- | ----------------- |
 | STL file view | [Wall-to-Floor](https://github.com/rivques/mishap-d/blob/main/docs/STLFILES/angled%20hinges.md) | [Floor-to-Floor](https://github.com/rivques/mishap-d/blob/main/docs/STLFILES/straight%20hinges.md) |
-| Photo example | 
+| Photo example | <img src="https://github.com/rivques/mishap-d/assets/91289762/13cc2381-df08-44e4-9bcf-e25133e4b071" width="500" height="500" /> | <img src="https://github.com/rivques/mishap-d/assets/91289762/ee161683-43a2-4444-a2cc-fc2657996866" width="500" height="500" /> |
 
 
