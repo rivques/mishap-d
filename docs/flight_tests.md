@@ -22,7 +22,7 @@ Our second test was dramatic. Because we'd added landing legs to avoid another s
 algorithms were expecting it. This resulted in unstable oscillations on the way up that led to complete loss of control on the descent, likely including
 a full flip of the drone. Fortunately, the landing legs happened to be pointing down when the drone hit the ground and were able to take the brunt of the
 damage, functioning much like a crumple zone. The only damage the drone sustained was the loss of a few small body panels that were easily reatached.
-Most importantly, we got data from this flight! Below is a chart of our altitude (blue), our door status (red), and our velocity (yellow).
+Most importantly, we got data from this flight! Below is a chart of our altitude (blue), our door status (red), and our velocity (yellow). The raw data is available on [this Google Sheet.](https://docs.google.com/spreadsheets/d/1Iwo3LpYv4sStXbSmEhpzdQrKsmYBJGHzCGTjOUSJNG4/edit?usp=sharing)
 
 ![MISHAP-D Flight Test 2](https://github.com/rivques/mishap-d/assets/38469076/ea0f5666-39ea-4ef4-af89-881e11699b6d)
 

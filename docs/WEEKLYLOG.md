@@ -74,5 +74,11 @@
 * Jakob: Start Breadboard installation 
 ### Week of 4/29
 * River: Pivot to logging on Pico
-* 
+* Graham: 
 * Jakob: Finished Wiring and started sights
+### Week of 5/6
+AP testing
+### Week of 5/13
+Flight test
+### Week of 5/20
+Documentation

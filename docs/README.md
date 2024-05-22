@@ -6,3 +6,4 @@ The documentation for this project is split up among multiple files:
 * [Flight Tests](/docs/flight_tests.md)
 * [Reflections](/docs/reflections.md)
 * Initial planning: [Overall](/docs/PLANNING.md) and [Software](SOFTWAREPLANNING.md)
+* [Weekly logs](/docs/WEEKLYLOG.md)
