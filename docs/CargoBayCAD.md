@@ -52,8 +52,8 @@ The problems with this box:
 ![full box exploded view](https://github.com/rivques/mishap-d/assets/91289762/5324bdc1-6648-4a94-9335-00b292a45180)
 
 * The laser-cut box is a two-section container with a center wall to prevent interference between the cargo and electronics.
-* The electronics bay is comprised of a [] a battery pack and a raspberry pico.
-* The wholes on the box are size #4-40 for the labs screws and #1-72 for the small ones
+* The electronics bay is comprised of a [] battery pack and a Raspberry Pico.
+* The wholes on the box are sizes #4-40 for the lab's screws and #1-72 for the small ones
 * The large hole on the electronics bay door is the lock. The point of the design is to be able to wrap a wire into the electronics bay side wall and twist it shut.
   <details>
   <summary>Photo Example</summary>
@@ -72,7 +72,7 @@ The problems with this box:
 
 [The entry slot](https://github.com/rivques/mishap-d/blob/main/docs/STLFILES/receiver.md)
 
-* All together the landing gear doesn't fit a stick perfectally squared and horizontal, this is intentional. Intentional because of the tension forces provided giving a structural bonus of strength and tensile forces going everywhere. This does, however, cause the landing gear to explode if the drone falls out of the sky.
+* All together the landing gear doesn't fit a stick perfectly squared and horizontally, this is intentional. Intentional because of the tension forces provided giving a structural bonus of strength and tensile forces going everywhere. This does, however, cause the landing gear to explode if the drone falls out of the sky.
 <details><summary>Imperfect fit</summary> 
  
 ![landing gear imperfections](https://github.com/rivques/mishap-d/assets/91289762/d265ea25-eabb-4198-a236-f222ed34d6b3)
@@ -88,4 +88,11 @@ The problems with this box:
 ## Addons
 ### Hinges!
 ![opening doors](https://github.com/rivques/mishap-d/assets/91289762/68b1797e-d195-4143-83e4-84167e003d6e)
+* There are two sets of hinges, one that goes on a wall-to-floor relationship and creates a 90-degree angle and one that has a floor-to-floor relationship with a 180-degree relationship.
+
+| 90 degree stl | 180 degree stl |
+| ------------- | -------------- |
+| [Wall-to-Floor](https://github.com/rivques/mishap-d/blob/main/docs/STLFILES/angled%20hinges.md) | [Floor-to-Floor](https://github.com/rivques/mishap-d/blob/main/docs/STLFILES/straight%20hinges.md) |
+
+
 
