@@ -90,9 +90,9 @@ The problems with this box:
 ![opening doors](https://github.com/rivques/mishap-d/assets/91289762/68b1797e-d195-4143-83e4-84167e003d6e)
 * There are two sets of hinges, one that goes on a wall-to-floor relationship and creates a 90-degree angle and one that has a floor-to-floor relationship with a 180-degree relationship.
 
-| 90 degree stl | 180 degree stl |
-| ------------- | -------------- |
-| [Wall-to-Floor](https://github.com/rivques/mishap-d/blob/main/docs/STLFILES/angled%20hinges.md) | [Floor-to-Floor](https://github.com/rivques/mishap-d/blob/main/docs/STLFILES/straight%20hinges.md) |
-
+| Catagory | 90 Degree Hinges | 180 Degree Hinges |
+| -------- | ---------------- | ----------------- |
+| STL file view | [Wall-to-Floor](https://github.com/rivques/mishap-d/blob/main/docs/STLFILES/angled%20hinges.md) | [Floor-to-Floor](https://github.com/rivques/mishap-d/blob/main/docs/STLFILES/straight%20hinges.md) |
+| Photo example | 
 
 
