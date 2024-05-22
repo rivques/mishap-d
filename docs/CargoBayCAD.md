@@ -11,7 +11,7 @@
 * The addons (Hinges, Servo mount, and the hatch lock)
 * The landing gear
 
-### The Box
+## The Box
 <details>
 <summary>Trials and errors of the box </summary>
 
@@ -78,9 +78,14 @@ The problems with this box:
 ![landing gear imperfections](https://github.com/rivques/mishap-d/assets/91289762/d265ea25-eabb-4198-a236-f222ed34d6b3)
 </details>
 <details><summary>Bye Bye Landing Gear!</summary> 
+
  
 ![landing gear bomb num.1](https://github.com/rivques/mishap-d/assets/91289762/ffcf9fe4-5b3d-42f9-80c6-c5cbfefe46e5)
 
 ![landing gear bomb num.2](https://github.com/rivques/mishap-d/assets/91289762/5a3c16c8-40b6-4bbd-a4d1-9a455e789179)
 </details>
+
+## Addons
+### Hinges!
+![opening doors](https://github.com/rivques/mishap-d/assets/91289762/68b1797e-d195-4143-83e4-84167e003d6e)
 
