@@ -1,8 +1,10 @@
 # Cargobay Docs
 ## Basics
-### Design purpose and sucess statement:
-* The intent of this design is to create a box that can connect to the bottom of a drone and hold the electronics for all of our various components and also hold the dropping cargo.
-* This design is succesful if: everything fits right without filing or scraping, all the components of the in-sky module can fit inside without interference, it is lightweight enough for the drone to comfortably move with good dexterity, and the cargo can be dropped at any time.
+### Design purpose and success statement:
+* This design intends to create a box that can connect to the bottom of a drone and hold the electronics for all of our various components and also hold the dropping cargo.
+* This design is successful if: everything fits right without filing or scraping, all the components of the in-sky module can fit inside without interference, it is lightweight enough for the drone to comfortably move with good dexterity, and the cargo can be dropped at any time.
+* If a picture is worth a thousand words then an STL is worth a million! Please click on the STL renderings to truly conceptualize my design choices!
+  
 ### Timeline:
 
 ## Design
@@ -107,9 +109,15 @@ The problems with this box:
 | ---- | ---- |
 | ![front profile servo mount](https://github.com/rivques/mishap-d/assets/91289762/468412ae-5729-44a5-9b58-eb9be3fedeec) | ![side profile screw washer servo mount](https://github.com/rivques/mishap-d/assets/91289762/0ba4db49-f677-4ae6-b2b6-89ad9c74a286) |
 
+### Drone Mounts
+* Very simple design intended to screw the Cergo Bay onto the drone
+[Rendered version of STL](https://github.com/rivques/mishap-d/blob/main/docs/STLFILES/drone%20mount.md)
+
+
+
 ## Wiring
-The cargo bay wiring was prototyped on a breadboard, but was transfered to protoboard for rigidity. Below is the actual wiring of the board (our original plan is [here](/payload-circuit.fzz))
-* 9V in through switch to ESP32 VIN and input leg of voltage regulator
+The cargo bay wiring was prototyped on a breadboard but was transferred to a protoboard for rigidity. Below is the actual wiring of the board (our original plan is [here](/payload-circuit.fzz))
+* 9V in to ESP32 VIN and input leg of voltage regulator
 * Servo: Power -> ESP32 VIN, GND -> GND, Signal -> ESP32 D27
 * MPL3115A2 (altimeter): MPL SDA -> ESP32 D21, MPL SCL -> ESP32 D22, GND -> GND, MPL VIN -> voltage regulator output
 * Raspberry Pi Pico: ESP32 TX2-> Pico GP9, GND -> GND, and Pico VSYS -> voltage regulator output
