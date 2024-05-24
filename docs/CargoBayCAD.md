@@ -111,6 +111,7 @@ The problems with this box:
 
 ### Drone Mounts
 * Very simple design intended to screw the Cergo Bay onto the drone
+* 
 [Rendered version of STL](https://github.com/rivques/mishap-d/blob/main/docs/STLFILES/drone%20mount.md)
 
 
