@@ -101,7 +101,7 @@ The problems with this box:
 * It doesn't fall because the system is screwed in from the outside with a washer to ensure the screw applies pressure to the wall and the servo mount.
 * The mount offers additional support to the servo by having a space for its screw holes, the platform is held in place by surrounding material.
 
-  (Here be the STL)[https://github.com/rivques/mishap-d/blob/main/docs/STLFILES/servo%20mount%20on%20wall.md]
+  [Here be the STL](https://github.com/rivques/mishap-d/blob/main/docs/STLFILES/servo%20mount%20on%20wall.md)
   
 | Top Right Profile | Section View Profile |
 | ---- | ---- |
