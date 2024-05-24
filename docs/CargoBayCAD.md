@@ -107,5 +107,11 @@ The problems with this box:
 | ---- | ---- |
 | ![front profile servo mount](https://github.com/rivques/mishap-d/assets/91289762/468412ae-5729-44a5-9b58-eb9be3fedeec) | ![side profile screw washer servo mount](https://github.com/rivques/mishap-d/assets/91289762/0ba4db49-f677-4ae6-b2b6-89ad9c74a286) |
 
-
-
+## Wiring
+The cargo bay wiring was prototyped on a breadboard, but was transfered to protoboard for rigidity. Below is the actual wiring of the board (our original plan is [here](/payload-circuit.fzz))
+* 9V in through switch to ESP32 VIN and input leg of voltage regulator
+* Servo: Power -> ESP32 VIN, GND -> GND, Signal -> ESP32 D27
+* MPL3115A2 (altimeter): MPL SDA -> ESP32 D21, MPL SCL -> ESP32 D22, GND -> GND, MPL VIN -> voltage regulator output
+* Raspberry Pi Pico: ESP32 TX2-> Pico GP9, GND -> GND, and Pico VSYS -> voltage regulator output
+* Debug LED: Cathode -> GND, Anode -> ESP32 D32
+* Voltage regulator: 33µF cap across GND and VIN, 0.1µF cap across GND and VOUT
