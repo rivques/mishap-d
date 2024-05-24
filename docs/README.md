@@ -1,5 +1,6 @@
 # MISHAP-D Documentation
 The documentation for this project is split up among multiple files:
+* [Bill of Materials](/docs/bill_of_materials.md)
 * [Cargo Bay](/docs/CargoBayCAD.md)
 * [Ground Station(TBD)]
 * [Code](/docs/code.md)
