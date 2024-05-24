@@ -95,5 +95,17 @@ The problems with this box:
 | STL file view | [Wall-to-Floor](https://github.com/rivques/mishap-d/blob/main/docs/STLFILES/angled%20hinges.md) | [Floor-to-Floor](https://github.com/rivques/mishap-d/blob/main/docs/STLFILES/straight%20hinges.md) |
 | Photo example | <img src="https://github.com/rivques/mishap-d/assets/91289762/a7cbe299-030f-4916-95d3-27764919067f" width="500" height="500" /> | <img src="https://github.com/rivques/mishap-d/assets/91289762/fad67f51-4504-476e-8fad-b35a5d2c8554" width="500" height="500" /> |
 
+### Servo Mount
+* The servo mount was created because of my laziness, but it's the best thing to come out of this lab in years.
+* The servo mount requires two holes in the wall and it wraps around the servo and tightens with a self-engraving bolt.
+* It doesn't fall because the system is screwed in from the outside with a washer to ensure the screw applies pressure to the wall and the servo mount.
+* The mount offers additional support to the servo by having a space for its screw holes, the platform is held in place by surrounding material.
+
+  (Here be the STL)[https://github.com/rivques/mishap-d/blob/main/docs/STLFILES/servo%20mount%20on%20wall.md]
+  
+| Top Right Profile | Section View Profile |
+| ---- | ---- |
+| ![front profile servo mount](https://github.com/rivques/mishap-d/assets/91289762/468412ae-5729-44a5-9b58-eb9be3fedeec) | ![side profile screw washer servo mount](https://github.com/rivques/mishap-d/assets/91289762/0ba4db49-f677-4ae6-b2b6-89ad9c74a286) |
+
 
 
