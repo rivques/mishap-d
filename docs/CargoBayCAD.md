@@ -51,7 +51,7 @@ The problems with this box:
 
 ### Current box:
 
-![full box exploded view](https://github.com/rivques/mishap-d/blob/15924a79be7bf9a228da18630f715c2e00e89422/assets/Assembly%202.png)
+<img src="https://github.com/rivques/mishap-d/blob/15924a79be7bf9a228da18630f715c2e00e89422/assets/Assembly%202.png" width="600">
 
 * The laser-cut box is a two-section container with a center wall to prevent interference between the cargo and electronics.
 * The electronics bay is comprised of a [] battery pack and a Raspberry Pico.
