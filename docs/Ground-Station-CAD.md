@@ -4,7 +4,7 @@
 * ALERTS: 15 -->
 
 
-## Ground station CAD
+# Ground station CAD
 
 
 ## Design requirements
@@ -84,7 +84,7 @@ To calculate the angle The ground station needed to be pointed at the plane orig
 
 
 
-## Design style
+# Design style
 
 
 ### Design for 3d Printing
@@ -130,7 +130,7 @@ Caption:These are two of the joints
 ### Construction difficulties 
 
 
-## Reflection 
+# Reflection 
 
 
 ![alt_text](images/image15.png "image_tooltip")
