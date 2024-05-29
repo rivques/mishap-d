@@ -4,6 +4,7 @@
 * This design intends to create a box that can connect to the bottom of a drone and hold the electronics for all of our various components and also hold the dropping cargo.
 * This design is successful if: everything fits right without filing or scraping, all the components of the in-sky module can fit inside without interference, it is lightweight enough for the drone to comfortably move with good dexterity, and the cargo can be dropped at any time.
 * If a picture is worth a thousand words then an STL is worth a million! Please click on the STL renderings to truly conceptualize my design choices!
+* Make sure youre looking at the drop-down menus too!
   
 ### Timeline:
 
@@ -133,7 +134,7 @@ The problems with this box:
 ## What not to do!
 * During construction, ensure the center door is oriented correctly to where the servo wires go through the premade hole.
 * During wiring, don't forget to orient the pico and battery pack in a way where their wires and oriented closer to the hinges. This is because the door won't open all the way because of the wires, and if it does, then your wires are all broken.
-* Before flying, MAKE SURE YOU DONT MAKE THE LANDING GEAR TOO BIG. IT CAUSED OUR DRONE TO CRASH!!!!!!
+* Before flying, MAKE SURE YOU DON'T MAKE THE LANDING GEAR TOO BIG. IT CAUSED OUR DRONE TO CRASH!!!!!!
   
 <details>
 <summary>Graham, I don't believe you for a second.</summary>
