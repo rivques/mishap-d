@@ -110,15 +110,28 @@ The problems with this box:
 | ![front profile servo mount](https://github.com/rivques/mishap-d/assets/91289762/468412ae-5729-44a5-9b58-eb9be3fedeec) | ![side profile screw washer servo mount](https://github.com/rivques/mishap-d/assets/91289762/0ba4db49-f677-4ae6-b2b6-89ad9c74a286) |
 
 ### Drone Mounts
-* Very simple design intended to screw the Cergo Bay onto the drone
-* 
+* Very simple design intended to screw the Cargo Bay onto the drone
+* Unfortunately, I had to make two renditions of this, the first one fit too perfectly and didn't take into account the screw threading. The screw threading embedded itself into the drone's landing gear.
+<details>
+<summary>What are you talking about?</summary>
+  
+![ScrewThreading](https://github.com/rivques/mishap-d/assets/91289762/918fe0cf-1033-4f8a-8138-3e579a841fbb)
+
+</details>
+
+* Other than that, it worked great, used very little material, and could be printed without support.
+
 [Rendered version of STL](https://github.com/rivques/mishap-d/blob/main/docs/STLFILES/drone%20mount.md)
+
+### Cargo Bay Latch
+* The cargo bay latch went through two renditions
+* The second rendition wasn't made because there was anything wrong with the first, but because the design of the Cargo Bay Door changed and it was easier to remake it then edit the old one.
 
 
 
 ## Wiring
 The cargo bay wiring was prototyped on a breadboard but was transferred to a protoboard for rigidity. Below is the actual wiring of the board (our original plan is [here](/payload-circuit.fzz))
-* 9V in to ESP32 VIN and input leg of voltage regulator
+* 9V into ESP32 VIN and input leg of voltage regulator
 * Servo: Power -> ESP32 VIN, GND -> GND, Signal -> ESP32 D27
 * MPL3115A2 (altimeter): MPL SDA -> ESP32 D21, MPL SCL -> ESP32 D22, GND -> GND, MPL VIN -> voltage regulator output
 * Raspberry Pi Pico: ESP32 TX2-> Pico GP9, GND -> GND, and Pico VSYS -> voltage regulator output
