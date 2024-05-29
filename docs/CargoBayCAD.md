@@ -10,7 +10,7 @@
 ## Design
 ###  The box consists of three main components:
 * The physical box (All laser cut)
-* The addons (Hinges, Servo mount, and the hatch lock)
+* The add-ons (Hinges, Servo mount, and the hatch lock)
 * The landing gear
 
 ## The Box
@@ -112,6 +112,8 @@ The problems with this box:
 ### Drone Mounts
 * Very simple design intended to screw the Cargo Bay onto the drone
 * Unfortunately, I had to make two renditions of this, the first one fit too perfectly and didn't take into account the screw threading. The screw threading embedded itself into the drone's landing gear.
+* Make sure to open STLs, they don't auto-download to your computer and they will help you grasp what I'm trying to explain!
+* Make sure to open the dropdown menus too! Some of them are for trials and errors, others are photos that would have been too big, and one is a very sad video.... the end of our project.
 <details>
 <summary>What are you talking about?</summary>
   
@@ -126,8 +128,19 @@ The problems with this box:
 ### Cargo Bay Latch
 * The cargo bay latch went through two renditions
 * The second rendition wasn't made because there was anything wrong with the first, but because the design of the Cargo Bay Door changed and it was easier to remake it then edit the old one.
+[stl rendering:](https://github.com/rivques/mishap-d/blob/main/docs/STLFILES/cargobayclip.md)
 
+## What not to do!
+* During construction, ensure the center door is oriented correctly to where the servo wires go through the premade hole.
+* During wiring, don't forget to orient the pico and battery pack in a way where their wires and oriented closer to the hinges. This is because the door won't open all the way because of the wires, and if it does, then your wires are all broken.
+* Before flying, MAKE SURE YOU DONT MAKE THE LANDING GEAR TOO BIG. IT CAUSED OUR DRONE TO CRASH!!!!!!
+  
+<details>
+<summary>Graham, I don't believe you for a second.</summary>
 
+https://github.com/rivques/mishap-d/assets/38469076/972d8c86-7016-41f2-878d-53066bbe97b3
+  
+</details>
 
 ## Wiring
 The cargo bay wiring was prototyped on a breadboard but was transferred to a protoboard for rigidity. Below is the actual wiring of the board (our original plan is [here](/payload-circuit.fzz))
