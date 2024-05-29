@@ -237,7 +237,7 @@ void displaySetup(){
   Serial.println("done setup");
 }
 
-void selectNumberToVariable(float* target, String name, bool* onchanged = NULL){
+void selectNumberToVariable(float* target, String name, bool* onchanged = NULL){ // takes a number from the user and sets it to a variable
   chooseNumber();
   display.setCursor(0, 0);
   display.print("Choose ");
@@ -262,7 +262,7 @@ float targetX = 0;
 float targetY = 0;
 float targetZ = 0;
 
-void doDisplay(){
+void doDisplay(){  // the display loop
   display.display();
   unsigned long loopStart = millis();
   updateEncoderValue();
@@ -322,7 +322,7 @@ void groundsetup(){
 
 long lastSend = 0;
 
-void doLaserAngles(){
+void doLaserAngles(){ // figure out laser data and send it to payload
   if(millis() - lastSend > 1000){
     LaserAngleData lad = LaserAngleData{ millis() / 1000.0, hallRead(), false, false };
     uint8_t send_buf[RH_RF95_MAX_MESSAGE_LEN];
@@ -345,7 +345,7 @@ void doLaserAngles(){
   }
 }
 
-void groundloop(){
+void groundloop(){ // main loop
   doDisplay();
   // send a packet every second with the current time and the esp32's built-in hall effect sensor
   // use laserangledata for testing

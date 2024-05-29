@@ -139,7 +139,7 @@ void ledDebugProgramEnded(){
     }
 }
 
-bool handlePacket(MishapProtocolPacket packet){
+bool handlePacket(MishapProtocolPacket packet){ // called when we get a packet from the ground station
     // returns true if we need to update position
   Serial.print("Packet is of type ");
   Serial.println(packet.packetType);
@@ -179,14 +179,14 @@ bool handlePacket(MishapProtocolPacket packet){
 }
 
 
-void initSdLogging()
+void initSdLogging() // just sets up the serial port
 {
     Serial2.begin(115200, SERIAL_8N1, -1, 17);
 
     Serial2.println("Time,Payload Location X,Payload Location Y,Payload Location Z,Payload Velocity X,Payload Velocity Y,Payload Velocity Z,Target Location X,Target Location Y,Target Location Z,Impact Location X,Impact Location Y,Impact Location Z,Is Track Good,Is Armed,Did Drop,Theta,Phi,Last Packet Received Time,Time Since Last Location Update");
 }
 
-float getTimeOfFlight(Vector3d payloadLoc, Vector3d payloadVel, Vector3d targetLoc) {
+float getTimeOfFlight(Vector3d payloadLoc, Vector3d payloadVel, Vector3d targetLoc) { // figures out how long it would take the payload to hit the ground
     float a = -9.81;//accelaeeratiion
     float displacement = payloadLoc.z - targetLoc.z;
     float t1 = (-payloadVel.z + sqrt(payloadVel.z * payloadVel.z - 2 * a * displacement))/a;
@@ -203,7 +203,7 @@ float getTimeOfFlight(Vector3d payloadLoc, Vector3d payloadVel, Vector3d targetL
     }
 }
 
-Vector3d getDistance(Vector3d payloadLoc, Vector3d payloadVel, Vector3d targetLoc, Vector3d windRes, float timeOfFlight) {
+Vector3d getDistance(Vector3d payloadLoc, Vector3d payloadVel, Vector3d targetLoc, Vector3d windRes, float timeOfFlight) {// figures out how far the payload would travel
     Vector3d distance;
     distance.x = payloadVel.x * timeOfFlight + 0.5 * windRes.x * timeOfFlight * timeOfFlight; //1D kinematics equations to figure out location on 1D plane
     distance.y = payloadVel.y * timeOfFlight + 0.5 * windRes.y * timeOfFlight * timeOfFlight;
@@ -223,7 +223,7 @@ float deg2rad(float degrees) {
     float rad = (degrees * PI)/180;
     return rad;
 }
-Vector3d getPayloadLocation(float altitude, float theta, float phi) {
+Vector3d getPayloadLocation(float altitude, float theta, float phi) {  // calculates where the payload is from the laser angles
     float radius = altitude/tan(deg2rad(phi));
     Vector3d location;
     location.x = radius * cos(deg2rad(theta));
@@ -232,12 +232,12 @@ Vector3d getPayloadLocation(float altitude, float theta, float phi) {
     return location;
 }
 
-Vector3d getVelocity(Vector3d lastLocation, Vector3d currentLocation, unsigned long timeBetween) {
+Vector3d getVelocity(Vector3d lastLocation, Vector3d currentLocation, unsigned long timeBetween) { // difference in location over time
     Vector3d velocity = (currentLocation-lastLocation)/(static_cast<float>(timeBetween)/1000.0f);
     return velocity;
 }
 
-bool shouldDrop(Vector3d impactLoc, Vector3d targetLoc, bool isTrackGood, bool isArmed) {
+bool shouldDrop(Vector3d impactLoc, Vector3d targetLoc, bool isTrackGood, bool isArmed) { // figures out if the payload should drop
     if (isArmed == true && isTrackGood == true && impactToTarget <= ACCEPTABLE_TARGET_ERROR) {
         return true;
     }
@@ -246,7 +246,7 @@ bool shouldDrop(Vector3d impactLoc, Vector3d targetLoc, bool isTrackGood, bool i
     }
 }
 
-bool recieveAndHandlePacket(){
+bool recieveAndHandlePacket(){ // checks if we have a packet and if we do, handles it
     bool result = false;
     if(manager.available()){
         unsigned long start = millis();
@@ -282,7 +282,7 @@ void setupLidar(){
   groundAltitude = baro.getAltitude();
 }
 
-void tryGetLidarDistance(){
+void tryGetLidarDistance(){ // we're using an altimeter so this isn't as hard as it was
     // Check on busyFlag to indicate if device is idle
     // (meaning = it finished the previously triggered measurement)
     //Serial.println("trying for new altitude...");
@@ -303,7 +303,7 @@ void tryGetLidarDistance(){
     Serial.println(altitude);
 }
 
-void saveAndEndIfNeeded(){
+void saveAndEndIfNeeded(){ // stop the program when the boot button is pressed
     if(digitalRead(0) == LOW){
         Serial.println("Stopping");
         SD.end();
@@ -346,7 +346,7 @@ void logStateToSd(){
 #endif
 
 #ifdef TARGETING_PAYLOADONLY // without radio we only have altitude
-void logStateToSd(){
+void logStateToSd(){ // only log altitude and drop status
     ledDebugDidLog();
     Serial2.print(millis());
     Serial2.print(",");
@@ -357,7 +357,7 @@ void logStateToSd(){
 }
 #endif
 
-void updateLocation(){
+void updateLocation(){ // redo math when sensors change
     Vector3d lastLocation = currentLocation;
     currentLocation = getPayloadLocation(altitude, theta, phi);
     currentVelocity = getVelocity(lastLocation, currentLocation, millis() - lastLocationUpdateTime);
