@@ -7,7 +7,7 @@
 For the drop to be accurate the ground station needed to measure the angle between the horizontal plane and the drone as well as the change in angle with the ground station while it moved horizontally. The station is also required to contain an LCD for a menu to interact with the code and a set of push buttons for the arm command as well as the usual power and LCD requirements.
 
 
-<img src="assets\f0211503-800px-wm.jpg" width="600">
+<img src="https://github.com/rivques/mishap-d/blob/67724667fa980a3d7cef1d26b70fa8b794f51a1f/assets/f0211503-800px-wm.jpg" width="600">
 
 
 Caption: This is a section view facing from the front split through the middle of the project.
@@ -24,6 +24,7 @@ The handle is the most complex part of the Ground station and includes a functio
 
 
 <img src="assets\f0211503-800px-wm.jpg" width="600">
+
 <img src="assets\f0211503-800px-wm.jpg" width="600">
 
 
@@ -40,7 +41,7 @@ Caption: This is the button layout for the trigger grip
 
 Wire pathing on this project was one of the most complex parts of the CAD requiring rotating parts that are still connected by wires. This can either be done through a slip ring which I would have to buy or design myself, the latter option requiring at least a few weeks of work. Another way to path wires is to allow the wires to move freely within the joint although this restricts the movement of the joint. I chose the less complicated option of allowing the wires to move freely.
 
- \
+
 
 <img src="assets\f0211503-800px-wm.jpg" width="600">
 
