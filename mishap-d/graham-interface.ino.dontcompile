@@ -1,4 +1,5 @@
 /**************************************************************************
+  Adapted from Adafruit
   This is an example for our Monochrome OLEDs based on SSD1306 drivers
 
   Pick one up today in the adafruit shop!
@@ -71,7 +72,7 @@ void setup() {
   pinMode(backButtonPin, INPUT_PULLUP);
 
   // SSD1306_SWITCHCAPVCC = generate display voltage from 3.3V internally
-  if (!display.begin(SSD1306_SWITCHCAPVCC, SCREEN_ADDRESS)) {
+  if (!display.begin(SSD1306_SWITCHCAPVCC, SCREEN_ADDRESS)) { // init display
     Serial.println(F("SSD1306 allocation failed"));
     for (;;); // Don't proceed, loop forever
   }
@@ -96,7 +97,7 @@ void setup() {
 void loop() {
   display.display();
   unsigned long loopStart = millis();
-  encoderValue();
+  encoderValue(); // update encoder pos
   backButton = !digitalRead(backButtonPin);
   if (curMenuSelection == 1) { //main menu selection screen
     displayedNumber = 0;

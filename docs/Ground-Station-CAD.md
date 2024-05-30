@@ -1,5 +1,5 @@
 
-## Ground station CAD
+# Ground station CAD
 
 
 ## Design requirements
@@ -79,7 +79,7 @@ To calculate the angle The ground station needed to be pointed at the plane orig
 Versions and merges are also core elements of how this project was designed where versions and branches are used to test out different theories or ideas if they don't work you can move back to the main but if they do you can merge them this way multiple people can work on the document at the same time without damaging each other's work.
 
 
-## Design style
+# Design style
 
 
 ### Design for 3d Printing
@@ -150,7 +150,7 @@ There were some fit and finish problems within the design and one of the main is
 Another issue I had with the design was the Joint between the trigger grip and the tube that would get the y-plane rotation. This design was originally supposed to be two parts but kept snapping off this was a major issue as I would have to rewire the design every time it broke eventually I just stuck with keeping both parts printed together which originally I tried to avoid because it would end in a circle being printed on its side.
 
 
-## Reflection 
+# Reflection 
 
 The main issue with the project was that I took too long and didn't give the coders enough time to integrate the ground station with the rest of the project. The complexity of the design requirements required some elements of a complex design but I think I took it too far, some things could have been simplified and turned into an initial prototype that my teammates could have worked on for code giving them more time to integrate and still getting me time to add the complex features I wanted. For example, I could have routed the wires on the exterior of the project leaving them loose although this would have hurt the perfectionist within me it would have worked and saved me weeks of perfecting the complex routing of the wires. I also got carried away with a complex CAD of some of the parts the trigger grip is one of the most complex things I've ever designed and uses some pretty time-consuming CAD trickery and surfacing, just going with a stick would have been quicker and again I probably should have gone with a prototype before investing weeks into a complex but better design. 
 

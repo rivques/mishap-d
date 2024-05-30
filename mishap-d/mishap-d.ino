@@ -2,7 +2,7 @@
 
 #ifdef TARGETING_GROUND
 #include "groundcontroller.h"
-void setup(){
+void setup(){ // run the ground controller if that's what we're building for
     groundsetup();
 }
 void loop(){
@@ -11,7 +11,7 @@ void loop(){
 #endif
 
 #if defined(TARGETING_PAYLOAD) || defined(TARGETING_PAYLOADONLY)
-#include "payloadcontroller.h"
+#include "payloadcontroller.h" // run the payload controller if that's what we're building for
 void setup(){
     payloadsetup();
 }
