@@ -9,7 +9,6 @@ For the drop to be accurate the ground station needed to measure the angle betwe
 
 <img src="https://github.com/rivques/mishap-d/blob/47df40ad20b2594f7d03712b8e78049119fa7873/assets/f0211503-800px-wm.jpg" width="600">
 
-
 Caption: This is a section view facing from the front split through the middle of the project.
 
 
