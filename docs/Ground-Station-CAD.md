@@ -133,11 +133,11 @@ These are the settings that I fine-tuned at home they allow me to print with a n
 For this project the soldering wasn't particularly difficult the issue was routing wires through the entire project which was a finicky and time-consuming process. In the end, though I achieved a clean route and used shrink wrap and connectors whenever possible to add support and help with ease of use.
 
 
-<img src="https://github.com/rivques/mishap-d/blob/47df40ad20b2594f7d03712b8e78049119fa7873/assets/image21.png" width="600">
+<img src="https://github.com/rivques/mishap-d/blob/47df40ad20b2594f7d03712b8e78049119fa7873/assets/image21.jpg" width="600">
 
-<img src="https://github.com/rivques/mishap-d/blob/47df40ad20b2594f7d03712b8e78049119fa7873/assets/image22.png" width="600">
+<img src="https://github.com/rivques/mishap-d/blob/47df40ad20b2594f7d03712b8e78049119fa7873/assets/image22.jpg" width="600">
 
-<img src="https://github.com/rivques/mishap-d/blob/47df40ad20b2594f7d03712b8e78049119fa7873/assets/image23.png" width="600">
+<img src="https://github.com/rivques/mishap-d/blob/47df40ad20b2594f7d03712b8e78049119fa7873/assets/image23.jpg" width="600">
 
 
 
