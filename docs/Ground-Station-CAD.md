@@ -135,9 +135,9 @@ For this project the soldering wasn't particularly difficult the issue was routi
 
 <img src="https://github.com/rivques/mishap-d/blob/47df40ad20b2594f7d03712b8e78049119fa7873/assets/image21.jpg" width="600">
 
-<img src="https://github.com/rivques/mishap-d/blob/47df40ad20b2594f7d03712b8e78049119fa7873/assets/image22.jpg" width="600">
+<img src="https://github.com/rivques/mishap-d/blob/3f42e853a8b2bf39fef3c0bed54094c4a2ee6a2f/assets/image22.jpg" width="600">
 
-<img src="https://github.com/rivques/mishap-d/blob/47df40ad20b2594f7d03712b8e78049119fa7873/assets/image23.jpg" width="600">
+<img src="https://github.com/rivques/mishap-d/blob/3f42e853a8b2bf39fef3c0bed54094c4a2ee6a2f/assets/image23.jpg" width="600">
 
 
 
